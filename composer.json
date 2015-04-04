@@ -1,0 +1,21 @@
+{
+    "name": "clue/block-react",
+    "description": "Integrate async React PHP components into your blocking environment",
+    "keywords": ["Event Loop", "blocking", "synchronous", "Promise", "ReactPHP", "async"],
+    "homepage": "https://github.com/clue/php-block-react",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christian Lück",
+            "email": "christian@lueck.tv"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Clue\\React\\Block\\": "src/" }
+    },
+    "require": {
+    	"php": ">=5.3",
+        "react/event-loop": "0.4.*|0.3.*",
+        "react/promise": "~2.0|~1.0"
+    }
+}
