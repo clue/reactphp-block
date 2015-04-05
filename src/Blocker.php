@@ -24,11 +24,16 @@ class Blocker
      */
     public function wait($time)
     {
+        $wait = true;
         $loop = $this->loop;
-        $loop->addTimer($time, function () use ($loop) {
+        $loop->addTimer($time, function () use ($loop, &$wait) {
             $loop->stop();
+            $wait = false;
         });
-        $loop->run();
+
+        do {
+            $loop->run();
+        } while($wait);
     }
 
     /**
@@ -40,20 +45,26 @@ class Blocker
      */
     public function awaitOne(PromiseInterface $promise)
     {
+        $wait = true;
         $resolved = null;
         $exception = null;
+        $loop = $this->loop;
 
         $promise->then(
-            function ($c) use (&$resolved) {
+            function ($c) use (&$resolved, &$wait, $loop) {
                 $resolved = $c;
+                $wait = false;
+                $loop->stop();
             },
-            function ($error) use (&$exception) {
+            function ($error) use (&$exception, &$wait, $loop) {
                 $exception = $error;
+                $wait = false;
+                $loop->stop();
             }
         );
 
-        while ($resolved === null && $exception === null) {
-            $this->loop->tick();
+        while ($wait) {
+            $loop->run();
         }
 
         if ($exception !== null) {
@@ -80,11 +91,12 @@ class Blocker
         $wait = count($promises);
         $value = null;
         $success = false;
+        $loop = $this->loop;
 
         foreach ($promises as $key => $promise) {
             /* @var $promise PromiseInterface */
             $promise->then(
-                function ($return) use (&$value, &$wait, &$success, $promises) {
+                function ($return) use (&$value, &$wait, &$success, $promises, $loop) {
                     if (!$wait) {
                         // only store first promise value
                         return;
@@ -99,19 +111,25 @@ class Blocker
                             $promise->cancel();
                         }
                     }
+
+                    $loop->stop();
                 },
-                function ($e) use (&$wait) {
+                function ($e) use (&$wait, $loop) {
                     if ($wait) {
                         // count number of promises to await
                         // cancelling promises will reject all remaining ones, ignore this
                         --$wait;
+
+                        if (!$wait) {
+                            $loop->stop();
+                        }
                     }
                 }
             );
         }
 
         while ($wait) {
-            $this->loop->tick();
+            $loop->run();
         }
 
         if (!$success) {
@@ -140,15 +158,20 @@ class Blocker
         $wait = count($promises);
         $exception = null;
         $values = array();
+        $loop = $this->loop;
 
         foreach ($promises as $key => $promise) {
             /* @var $promise PromiseInterface */
             $promise->then(
-                function ($value) use (&$values, $key, &$wait) {
+                function ($value) use (&$values, $key, &$wait, $loop) {
                     $values[$key] = $value;
                     --$wait;
+
+                    if (!$wait) {
+                        $loop->stop();
+                    }
                 },
-                function ($e) use ($promises, &$exception, &$wait) {
+                function ($e) use ($promises, &$exception, &$wait, $loop) {
                     if (!$wait) {
                         // cancelling promises will reject all remaining ones, only store first error
                         return;
@@ -163,12 +186,14 @@ class Blocker
                             $promise->cancel();
                         }
                     }
+
+                    $loop->stop();
                 }
             );
         }
 
         while ($wait) {
-            $this->loop->tick();
+            $loop->run();
         }
 
         if ($exception !== null) {
