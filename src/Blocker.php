@@ -24,11 +24,16 @@ class Blocker
      */
     public function wait($time)
     {
+        $wait = true;
         $loop = $this->loop;
-        $loop->addTimer($time, function () use ($loop) {
+        $loop->addTimer($time, function () use ($loop, &$wait) {
             $loop->stop();
+            $wait = false;
         });
-        $loop->run();
+
+        do {
+            $loop->run();
+        } while($wait);
     }
 
     /**
@@ -40,22 +45,27 @@ class Blocker
      */
     public function awaitOne(PromiseInterface $promise)
     {
+        $wait = true;
         $resolved = null;
         $exception = null;
         $loop = $this->loop;
 
         $promise->then(
-            function ($c) use (&$resolved, $loop) {
+            function ($c) use (&$resolved, &$wait, $loop) {
                 $resolved = $c;
+                $wait = false;
                 $loop->stop();
             },
-            function ($error) use (&$exception, $loop) {
+            function ($error) use (&$exception, &$wait, $loop) {
                 $exception = $error;
+                $wait = false;
                 $loop->stop();
             }
         );
 
-        $loop->run();
+        while ($wait) {
+            $loop->run();
+        }
 
         if ($exception !== null) {
             throw $exception;
@@ -118,7 +128,9 @@ class Blocker
             );
         }
 
-        $loop->run();
+        while ($wait) {
+            $loop->run();
+        }
 
         if (!$success) {
             throw new UnderflowException('No promise could resolve');
@@ -180,7 +192,9 @@ class Blocker
             );
         }
 
-        $loop->run();
+        while ($wait) {
+            $loop->run();
+        }
 
         if ($exception !== null) {
             throw $exception;

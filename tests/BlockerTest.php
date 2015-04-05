@@ -38,6 +38,14 @@ class BlockerTest extends TestCase
         $this->assertEquals(2, $this->block->awaitOne($promise));
     }
 
+    public function testAwaitOneInterrupted()
+    {
+        $promise = $this->createPromiseResolved(2, 0.02);
+        $this->createTimerInterrupt(0.01);
+
+        $this->assertEquals(2, $this->block->awaitOne($promise));
+    }
+
     /**
      * @expectedException UnderflowException
      */
@@ -89,6 +97,14 @@ class BlockerTest extends TestCase
         $this->block->awaitRace($all);
     }
 
+    public function testAwaitRaceInterrupted()
+    {
+        $promise = $this->createPromiseResolved(2, 0.02);
+        $this->createTimerInterrupt(0.01);
+
+        $this->assertEquals(2, $this->block->awaitRace(array($promise)));
+    }
+
     public function testAwaitAllEmpty()
     {
         $this->assertEquals(array(), $this->block->awaitAll(array()));
@@ -126,6 +142,14 @@ class BlockerTest extends TestCase
         $this->block->awaitAll($all);
     }
 
+    public function testAwaitAllInterrupted()
+    {
+        $promise = $this->createPromiseResolved(2, 0.02);
+        $this->createTimerInterrupt(0.01);
+
+        $this->assertEquals(array(2), $this->block->awaitAll(array($promise)));
+    }
+
     private function createPromiseResolved($value = null, $delay = 0.01)
     {
         $deferred = new Deferred();
@@ -146,5 +170,13 @@ class BlockerTest extends TestCase
         });
 
         return $deferred->promise();
+    }
+
+    private function createTimerInterrupt($delay = 0.01)
+    {
+        $loop = $this->loop;
+        $loop->addTimer($delay, function () use ($loop) {
+            $loop->stop();
+        });
     }
 }
