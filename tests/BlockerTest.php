@@ -5,6 +5,8 @@ use React\Promise\Deferred;
 
 class BlockerTest extends TestCase
 {
+    const TIMEOUT_EXCEPTION_CLASS = 'Clue\React\Block\TimeoutException';
+
     private $loop;
     private $block;
 
@@ -50,7 +52,7 @@ class BlockerTest extends TestCase
     {
         $promise = $this->createPromiseResolved(2, 0.02);
 
-        $this->setExpectedException('RuntimeException', 'The promise could not resolve in the allowed time');
+        $this->setExpectedException(self::TIMEOUT_EXCEPTION_CLASS);
         $this->block->awaitOne($promise, 0.01);
     }
 
@@ -148,7 +150,7 @@ class BlockerTest extends TestCase
             $this->createPromiseResolved(3, 0.03),
         );
 
-        $this->setExpectedException('RuntimeException', 'No promise could resolve in the allowed time');
+        $this->setExpectedException(self::TIMEOUT_EXCEPTION_CLASS);
         $this->block->awaitRace($all, 0.01);
     }
 
@@ -221,7 +223,7 @@ class BlockerTest extends TestCase
             $this->createPromiseResolved(3, 0.01),
         );
 
-        $this->setExpectedException('RuntimeException', 'Not all promises could resolve in the allowed time');
+        $this->setExpectedException(self::TIMEOUT_EXCEPTION_CLASS);
         $this->block->awaitAll($all, 0.02);
     }
 
