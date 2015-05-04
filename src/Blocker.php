@@ -5,6 +5,7 @@ namespace Clue\React\Block;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use React\Promise\CancellablePromiseInterface;
+use RuntimeException;
 use UnderflowException;
 use Exception;
 
@@ -40,10 +41,11 @@ class Blocker
      * block waiting for the given $promise to resolve
      *
      * @param PromiseInterface $promise
+     * @param double $timeout maximum time to wait in seconds
      * @return mixed returns whatever the promise resolves to
-     * @throws Exception when the promise is rejected
+     * @throws Exception when the promise is rejected or times out
      */
-    public function awaitOne(PromiseInterface $promise)
+    public function awaitOne(PromiseInterface $promise, $timeout = null)
     {
         $wait = true;
         $resolved = null;
@@ -62,6 +64,14 @@ class Blocker
                 $loop->stop();
             }
         );
+
+        if ($timeout) {
+            $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
+                $exception = new RuntimeException('The promise could not resolve in the allowed time');
+                $wait = false;
+                $loop->stop();
+            });
+        }
 
         while ($wait) {
             $loop->run();
@@ -83,13 +93,15 @@ class Blocker
      * If ALL promises fail to resolve, this will fail and throw an Exception.
      *
      * @param array $promises
+     * @param double $timeout maximum time to wait in seconds
      * @return mixed returns whatever the first promise resolves to
-     * @throws Exception if ALL promises are rejected
+     * @throws Exception if ALL promises are rejected or ALL promises time out
      */
-    public function awaitRace(array $promises)
+    public function awaitRace(array $promises, $timeout = null)
     {
         $wait = count($promises);
         $value = null;
+        $exception = null;
         $success = false;
         $loop = $this->loop;
 
@@ -128,8 +140,20 @@ class Blocker
             );
         }
 
+        if ($timeout) {
+            $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
+                $exception = new RuntimeException('No promise could resolve in the allowed time');
+                $wait = 0;
+                $loop->stop();
+            });
+        }
+
         while ($wait) {
             $loop->run();
+        }
+
+        if ($exception !== null) {
+            throw $exception;
         }
 
         if (!$success) {
@@ -150,10 +174,11 @@ class Blocker
      * remaining promises and throw an Exception.
      *
      * @param array $promises
+     * @param double $timeout maximum time to wait in seconds
      * @return array returns an array with whatever each promise resolves to
-     * @throws Exception when ANY promise is rejected
+     * @throws Exception when ANY promise is rejected or ANY promise times out
      */
-    public function awaitAll(array $promises)
+    public function awaitAll(array $promises, $timeout = null)
     {
         $wait = count($promises);
         $exception = null;
@@ -190,6 +215,14 @@ class Blocker
                     $loop->stop();
                 }
             );
+        }
+
+        if ($timeout) {
+            $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
+                $exception = new RuntimeException('Not all promises could resolve in the allowed time');
+                $wait = 0;
+                $loop->stop();
+            });
         }
 
         while ($wait) {
