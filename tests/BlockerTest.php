@@ -54,6 +54,22 @@ class BlockerTest extends TestCase
         $this->block->awaitOne($promise, 0.01);
     }
 
+    public function testAwaitOneTimeoutCleanedUp()
+    {
+        $promise = $this->createPromiseResolved(1, 0.01);
+        $this->assertEquals(1, $this->block->awaitOne($promise, 0.02));
+
+        $loop = $this->loop;
+        $timerInvoked = false;
+        $loop->addTimer(0.02, function () use (&$timerInvoked, $loop) {
+            $timerInvoked = true;
+            $loop->stop();
+        });
+
+        $loop->run();
+        $this->assertTrue($timerInvoked);
+    }
+
     /**
      * @expectedException UnderflowException
      */
@@ -136,6 +152,22 @@ class BlockerTest extends TestCase
         $this->block->awaitRace($all, 0.01);
     }
 
+    public function testAwaitRaceTimeoutCleanedUp()
+    {
+        $promise = $this->createPromiseResolved(1, 0.01);
+        $this->assertEquals(1, $this->block->awaitRace(array($promise), 0.02));
+
+        $loop = $this->loop;
+        $timerInvoked = false;
+        $loop->addTimer(0.02, function () use (&$timerInvoked, $loop) {
+            $timerInvoked = true;
+            $loop->stop();
+        });
+
+        $loop->run();
+        $this->assertTrue($timerInvoked);
+    }
+
     public function testAwaitAllEmpty()
     {
         $this->assertEquals(array(), $this->block->awaitAll(array()));
@@ -191,6 +223,22 @@ class BlockerTest extends TestCase
 
         $this->setExpectedException('RuntimeException', 'Not all promises could resolve in the allowed time');
         $this->block->awaitAll($all, 0.02);
+    }
+
+    public function testAwaitAllTimeoutCleanedUp()
+    {
+        $promise = $this->createPromiseResolved(1, 0.01);
+        $this->assertEquals(array(1), $this->block->awaitAll(array($promise), 0.02));
+
+        $loop = $this->loop;
+        $timerInvoked = false;
+        $loop->addTimer(0.02, function () use (&$timerInvoked, $loop) {
+            $timerInvoked = true;
+            $loop->stop();
+        });
+
+        $loop->run();
+        $this->assertTrue($timerInvoked);
     }
 
     private function createPromiseResolved($value = null, $delay = 0.01)

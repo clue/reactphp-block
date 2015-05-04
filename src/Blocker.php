@@ -67,6 +67,9 @@ class Blocker
 
         if ($timeout) {
             $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
+                if (!$wait) {
+                    return;
+                }
                 $exception = new RuntimeException('The promise could not resolve in the allowed time');
                 $wait = false;
                 $loop->stop();
@@ -142,6 +145,9 @@ class Blocker
 
         if ($timeout) {
             $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
+                if (!$wait) {
+                    return;
+                }
                 $exception = new RuntimeException('No promise could resolve in the allowed time');
                 $wait = 0;
                 $loop->stop();
@@ -219,6 +225,9 @@ class Blocker
 
         if ($timeout) {
             $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
+                if (!$wait) {
+                    return;
+                }
                 $exception = new RuntimeException('Not all promises could resolve in the allowed time');
                 $wait = 0;
                 $loop->stop();
