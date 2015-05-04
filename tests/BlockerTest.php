@@ -121,7 +121,7 @@ class BlockerTest extends TestCase
             $this->createPromiseResolved(3, 0.03),
         );
 
-        $this->assertEquals(2, $this->block->awaitRace($all));
+        $this->assertEquals(2, $this->block->awaitRace($all, 0.2));
     }
 
     public function testAwaitRaceAllTimedOut()
