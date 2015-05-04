@@ -42,7 +42,8 @@ class Blocker
      * @param PromiseInterface $promise
      * @param double $timeout maximum time to wait in seconds
      * @return mixed returns whatever the promise resolves to
-     * @throws Exception when the promise is rejected or times out
+     * @throws Exception when the promise is rejected
+     * @throws TimeoutException when the timeout is reached and the promise is not resolved
      */
     public function awaitOne(PromiseInterface $promise, $timeout = null)
     {
@@ -97,7 +98,8 @@ class Blocker
      * @param array $promises
      * @param double $timeout maximum time to wait in seconds
      * @return mixed returns whatever the first promise resolves to
-     * @throws Exception if ALL promises are rejected or ALL promises time out
+     * @throws Exception if ALL promises are rejected
+     * @throws TimeoutException if the timeout is reached and NO promise is resolved
      */
     public function awaitRace(array $promises, $timeout = null)
     {
@@ -181,7 +183,8 @@ class Blocker
      * @param array $promises
      * @param double $timeout maximum time to wait in seconds
      * @return array returns an array with whatever each promise resolves to
-     * @throws Exception when ANY promise is rejected or ANY promise times out
+     * @throws Exception when ANY promise is rejected
+     * @throws TimeoutException if the timeout is reached and ANY promise is not resolved
      */
     public function awaitAll(array $promises, $timeout = null)
     {
