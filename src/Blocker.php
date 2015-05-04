@@ -5,7 +5,6 @@ namespace Clue\React\Block;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use React\Promise\CancellablePromiseInterface;
-use RuntimeException;
 use UnderflowException;
 use Exception;
 
