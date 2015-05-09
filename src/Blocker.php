@@ -53,15 +53,7 @@ class Blocker
         $onComplete = $this->getOnCompleteFn($resolution, $wait, array($promise), $timeout);
         $promise->then($onComplete, $onComplete);
 
-        while ($wait) {
-            $this->loop->run();
-        }
-
-        if ($resolution instanceof Exception) {
-            throw $resolution;
-        }
-
-        return $resolution;
+        return $this->awaitResolution($wait, $resolution);
     }
 
     /**
@@ -103,15 +95,7 @@ class Blocker
             );
         }
 
-        while ($wait) {
-            $this->loop->run();
-        }
-
-        if ($resolution instanceof Exception) {
-            throw $resolution;
-        }
-
-        return $resolution;
+        return $this->awaitResolution($wait, $resolution);
     }
 
     /**
@@ -158,6 +142,11 @@ class Blocker
             );
         }
 
+        return $this->awaitResolution($wait, $resolution);
+    }
+
+    private function awaitResolution(&$wait, &$resolution)
+    {
         while ($wait) {
             $this->loop->run();
         }
