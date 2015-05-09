@@ -49,22 +49,12 @@ class Blocker
     {
         $wait = true;
         $resolution = null;
-        $loop = $this->loop;
 
-        $onComplete = function ($valueOrError) use (&$resolution, &$wait, $loop) {
-            $resolution = $valueOrError;
-            $wait = false;
-            $loop->stop();
-        };
-
-        if ($timeout) {
-            $onComplete = $this->applyTimeout($loop, $timeout, $onComplete);
-        }
-
+        $onComplete = $this->getOnCompleteFn($resolution, $wait, array($promise), $timeout);
         $promise->then($onComplete, $onComplete);
 
         while ($wait) {
-            $loop->run();
+            $this->loop->run();
         }
 
         if ($resolution instanceof Exception) {
@@ -96,30 +86,8 @@ class Blocker
 
         $wait = count($promises);
         $resolution = null;
-        $loop = $this->loop;
 
-        $onComplete = function ($valueOrError) use (&$resolution, &$wait, $promises, $loop) {
-            if (!$wait) {
-                // only store first promise value
-                return;
-            }
-
-            $resolution = $valueOrError;
-            $wait = 0;
-
-            // cancel all remaining promises
-            foreach ($promises as $promise) {
-                if ($promise instanceof CancellablePromiseInterface) {
-                    $promise->cancel();
-                }
-            }
-
-            $loop->stop();
-        };
-
-        if ($timeout) {
-            $onComplete = $this->applyTimeout($loop, $timeout, $onComplete);
-        }
+        $onComplete = $this->getOnCompleteFn($resolution, $wait, $promises, $timeout);
 
         foreach ($promises as $promise) {
             /* @var $promise PromiseInterface */
@@ -136,7 +104,7 @@ class Blocker
         }
 
         while ($wait) {
-            $loop->run();
+            $this->loop->run();
         }
 
         if ($resolution instanceof Exception) {
@@ -164,68 +132,76 @@ class Blocker
      */
     public function awaitAll(array $promises, $timeout = null)
     {
+        if (!count($promises)) {
+            return array();
+        }
+        
         $wait = count($promises);
-        $exception = null;
+        $resolution = null;
         $values = array();
-        $loop = $this->loop;
+
+        $onComplete = $this->getOnCompleteFn($resolution, $wait, $promises, $timeout);
 
         foreach ($promises as $key => $promise) {
             /* @var $promise PromiseInterface */
             $promise->then(
-                function ($value) use (&$values, $key, &$wait, $loop) {
+                function ($value) use (&$wait, &$values, $key, $onComplete) {
                     $values[$key] = $value;
-                    --$wait;
 
-                    if (!$wait) {
-                        $loop->stop();
+                    if ($wait == 1) {
+                        $onComplete($values);
+                    } elseif ($wait) {
+                        --$wait;
                     }
                 },
-                function ($e) use ($promises, &$exception, &$wait, $loop) {
-                    if (!$wait) {
-                        // cancelling promises will reject all remaining ones, only store first error
-                        return;
-                    }
-
-                    $exception = $e;
-                    $wait = 0;
-
-                    // cancel all remaining promises
-                    foreach ($promises as $promise) {
-                        if ($promise instanceof CancellablePromiseInterface) {
-                            $promise->cancel();
-                        }
-                    }
-
-                    $loop->stop();
-                }
+                $onComplete
             );
         }
 
-        if ($timeout) {
-            $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
-                if (!$wait) {
-                    return;
-                }
-                $exception = new TimeoutException('Not all promises could resolve in the allowed time');
-                $wait = 0;
-                $loop->stop();
-            });
-        }
-
         while ($wait) {
-            $loop->run();
+            $this->loop->run();
         }
 
-        if ($exception !== null) {
-            throw $exception;
+        if ($resolution instanceof Exception) {
+            throw $resolution;
         }
 
-        return $values;
+        return $resolution;
     }
 
-    private function applyTimeout(LoopInterface $loop, $timeout, $onComplete)
+    private function getOnCompleteFn(&$resolution, &$wait, array $promises, $timeout)
     {
-        $timer = $loop->addTimer($timeout, function () use ($onComplete) {
+        $loop = $this->loop;
+
+        $onComplete = function ($valueOrError) use (&$resolution, &$wait, $promises, $loop) {
+            if (!$wait) {
+                // only store first promise value
+                return;
+            }
+
+            $resolution = $valueOrError;
+            $wait = false;
+
+            // cancel all remaining promises
+            foreach ($promises as $promise) {
+                if ($promise instanceof CancellablePromiseInterface) {
+                    $promise->cancel();
+                }
+            }
+
+            $loop->stop();
+        };
+
+        if ($timeout) {
+            $onComplete = $this->applyTimeout($timeout, $onComplete);
+        }
+
+        return $onComplete;
+    }
+
+    private function applyTimeout($timeout, $onComplete)
+    {
+        $timer = $this->loop->addTimer($timeout, function () use ($onComplete) {
             $onComplete(new TimeoutException('Could not resolve in the allowed time'));
         });
 
