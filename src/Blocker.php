@@ -48,43 +48,37 @@ class Blocker
     public function awaitOne(PromiseInterface $promise, $timeout = null)
     {
         $wait = true;
-        $resolved = null;
-        $exception = null;
+        $resolution = null;
         $loop = $this->loop;
 
-        $promise->then(
-            function ($c) use (&$resolved, &$wait, $loop) {
-                $resolved = $c;
-                $wait = false;
-                $loop->stop();
-            },
-            function ($error) use (&$exception, &$wait, $loop) {
-                $exception = $error;
-                $wait = false;
-                $loop->stop();
-            }
-        );
+        $onComplete = function ($valueOrError) use (&$resolution, &$wait, $loop) {
+            $resolution = $valueOrError;
+            $wait = false;
+            $loop->stop();
+        };
 
         if ($timeout) {
-            $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
-                if (!$wait) {
-                    return;
-                }
-                $exception = new TimeoutException('The promise could not resolve in the allowed time');
-                $wait = false;
-                $loop->stop();
+            $timer = $loop->addTimer($timeout, function () use ($onComplete) {
+                $onComplete(new TimeoutException('The promise could not resolve in the allowed time'));
             });
+
+            $onComplete = function ($valueOrError) use ($timer, $onComplete) {
+                $timer->cancel();
+                $onComplete($valueOrError);
+            };
         }
+
+        $promise->then($onComplete, $onComplete);
 
         while ($wait) {
             $loop->run();
         }
 
-        if ($exception !== null) {
-            throw $exception;
+        if ($resolution instanceof Exception) {
+            throw $resolution;
         }
 
-        return $resolved;
+        return $resolution;
     }
 
     /**
