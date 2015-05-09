@@ -40,38 +40,20 @@ class Blocker
      * block waiting for the given $promise to resolve
      *
      * @param PromiseInterface $promise
+     * @param double $timeout maximum time to wait in seconds
      * @return mixed returns whatever the promise resolves to
      * @throws Exception when the promise is rejected
+     * @throws TimeoutException when the timeout is reached and the promise is not resolved
      */
-    public function awaitOne(PromiseInterface $promise)
+    public function awaitOne(PromiseInterface $promise, $timeout = null)
     {
         $wait = true;
-        $resolved = null;
-        $exception = null;
-        $loop = $this->loop;
+        $resolution = null;
 
-        $promise->then(
-            function ($c) use (&$resolved, &$wait, $loop) {
-                $resolved = $c;
-                $wait = false;
-                $loop->stop();
-            },
-            function ($error) use (&$exception, &$wait, $loop) {
-                $exception = $error;
-                $wait = false;
-                $loop->stop();
-            }
-        );
+        $onComplete = $this->getOnCompleteFn($resolution, $wait, array($promise), $timeout);
+        $promise->then($onComplete, $onComplete);
 
-        while ($wait) {
-            $loop->run();
-        }
-
-        if ($exception !== null) {
-            throw $exception;
-        }
-
-        return $resolved;
+        return $this->awaitResolution($wait, $resolution);
     }
 
     /**
@@ -83,60 +65,37 @@ class Blocker
      * If ALL promises fail to resolve, this will fail and throw an Exception.
      *
      * @param array $promises
+     * @param double $timeout maximum time to wait in seconds
      * @return mixed returns whatever the first promise resolves to
      * @throws Exception if ALL promises are rejected
+     * @throws TimeoutException if the timeout is reached and NO promise is resolved
      */
-    public function awaitRace(array $promises)
+    public function awaitRace(array $promises, $timeout = null)
     {
-        $wait = count($promises);
-        $value = null;
-        $success = false;
-        $loop = $this->loop;
+        if (!count($promises)) {
+            throw new UnderflowException('No promise could resolve');
+        }
 
-        foreach ($promises as $key => $promise) {
+        $wait = count($promises);
+        $resolution = null;
+
+        $onComplete = $this->getOnCompleteFn($resolution, $wait, $promises, $timeout);
+
+        foreach ($promises as $promise) {
             /* @var $promise PromiseInterface */
             $promise->then(
-                function ($return) use (&$value, &$wait, &$success, $promises, $loop) {
-                    if (!$wait) {
-                        // only store first promise value
-                        return;
-                    }
-                    $value = $return;
-                    $wait = 0;
-                    $success = true;
-
-                    // cancel all remaining promises
-                    foreach ($promises as $promise) {
-                        if ($promise instanceof CancellablePromiseInterface) {
-                            $promise->cancel();
-                        }
-                    }
-
-                    $loop->stop();
-                },
-                function ($e) use (&$wait, $loop) {
-                    if ($wait) {
-                        // count number of promises to await
-                        // cancelling promises will reject all remaining ones, ignore this
+                $onComplete,
+                function ($e) use (&$wait, $onComplete) {
+                    if ($wait == 1) {
+                        $onComplete(new UnderflowException('No promise could resolve'));
+                    } elseif ($wait) {
                         --$wait;
-
-                        if (!$wait) {
-                            $loop->stop();
-                        }
                     }
                 }
             );
         }
 
-        while ($wait) {
-            $loop->run();
-        }
-
-        if (!$success) {
-            throw new UnderflowException('No promise could resolve');
-        }
-
-        return $value;
+        return $this->awaitResolution($wait, $resolution);
     }
 
     /**
@@ -150,56 +109,94 @@ class Blocker
      * remaining promises and throw an Exception.
      *
      * @param array $promises
+     * @param double $timeout maximum time to wait in seconds
      * @return array returns an array with whatever each promise resolves to
      * @throws Exception when ANY promise is rejected
+     * @throws TimeoutException if the timeout is reached and ANY promise is not resolved
      */
-    public function awaitAll(array $promises)
+    public function awaitAll(array $promises, $timeout = null)
     {
+        if (!count($promises)) {
+            return array();
+        }
+        
         $wait = count($promises);
-        $exception = null;
+        $resolution = null;
         $values = array();
-        $loop = $this->loop;
+
+        $onComplete = $this->getOnCompleteFn($resolution, $wait, $promises, $timeout);
 
         foreach ($promises as $key => $promise) {
             /* @var $promise PromiseInterface */
             $promise->then(
-                function ($value) use (&$values, $key, &$wait, $loop) {
+                function ($value) use (&$wait, &$values, $key, $onComplete) {
                     $values[$key] = $value;
-                    --$wait;
 
-                    if (!$wait) {
-                        $loop->stop();
+                    if ($wait == 1) {
+                        $onComplete($values);
+                    } elseif ($wait) {
+                        --$wait;
                     }
                 },
-                function ($e) use ($promises, &$exception, &$wait, $loop) {
-                    if (!$wait) {
-                        // cancelling promises will reject all remaining ones, only store first error
-                        return;
-                    }
-
-                    $exception = $e;
-                    $wait = 0;
-
-                    // cancel all remaining promises
-                    foreach ($promises as $promise) {
-                        if ($promise instanceof CancellablePromiseInterface) {
-                            $promise->cancel();
-                        }
-                    }
-
-                    $loop->stop();
-                }
+                $onComplete
             );
         }
 
+        return $this->awaitResolution($wait, $resolution);
+    }
+
+    private function awaitResolution(&$wait, &$resolution)
+    {
         while ($wait) {
-            $loop->run();
+            $this->loop->run();
         }
 
-        if ($exception !== null) {
-            throw $exception;
+        if ($resolution instanceof Exception) {
+            throw $resolution;
         }
 
-        return $values;
+        return $resolution;
+    }
+
+    private function getOnCompleteFn(&$resolution, &$wait, array $promises, $timeout)
+    {
+        $loop = $this->loop;
+
+        $onComplete = function ($valueOrError) use (&$resolution, &$wait, $promises, $loop) {
+            if (!$wait) {
+                // only store first promise value
+                return;
+            }
+
+            $resolution = $valueOrError;
+            $wait = false;
+
+            // cancel all remaining promises
+            foreach ($promises as $promise) {
+                if ($promise instanceof CancellablePromiseInterface) {
+                    $promise->cancel();
+                }
+            }
+
+            $loop->stop();
+        };
+
+        if ($timeout) {
+            $onComplete = $this->applyTimeout($timeout, $onComplete);
+        }
+
+        return $onComplete;
+    }
+
+    private function applyTimeout($timeout, $onComplete)
+    {
+        $timer = $this->loop->addTimer($timeout, function () use ($onComplete) {
+            $onComplete(new TimeoutException('Could not resolve in the allowed time'));
+        });
+
+        return function ($valueOrError) use ($timer, $onComplete) {
+            $timer->cancel();
+            $onComplete($valueOrError);
+        };
     }
 }

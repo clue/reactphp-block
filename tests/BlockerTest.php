@@ -5,6 +5,8 @@ use React\Promise\Deferred;
 
 class BlockerTest extends TestCase
 {
+    const TIMEOUT_EXCEPTION_CLASS = 'Clue\React\Block\TimeoutException';
+
     private $loop;
     private $block;
 
@@ -44,6 +46,30 @@ class BlockerTest extends TestCase
         $this->createTimerInterrupt(0.01);
 
         $this->assertEquals(2, $this->block->awaitOne($promise));
+    }
+
+    public function testAwaitOneTimedOut()
+    {
+        $promise = $this->createPromiseResolved(2, 0.02);
+
+        $this->setExpectedException(self::TIMEOUT_EXCEPTION_CLASS);
+        $this->block->awaitOne($promise, 0.01);
+    }
+
+    public function testAwaitOneTimeoutCleanedUp()
+    {
+        $promise = $this->createPromiseResolved(1, 0.01);
+        $this->assertEquals(1, $this->block->awaitOne($promise, 0.02));
+
+        $loop = $this->loop;
+        $timerInvoked = false;
+        $loop->addTimer(0.02, function () use (&$timerInvoked, $loop) {
+            $timerInvoked = true;
+            $loop->stop();
+        });
+
+        $loop->run();
+        $this->assertTrue($timerInvoked);
     }
 
     /**
@@ -105,6 +131,45 @@ class BlockerTest extends TestCase
         $this->assertEquals(2, $this->block->awaitRace(array($promise)));
     }
 
+    public function testAwaitRaceOneTimedOut()
+    {
+        $all = array(
+            $this->createPromiseResolved(1, 0.03),
+            $this->createPromiseResolved(2, 0.01),
+            $this->createPromiseResolved(3, 0.03),
+        );
+
+        $this->assertEquals(2, $this->block->awaitRace($all, 0.2));
+    }
+
+    public function testAwaitRaceAllTimedOut()
+    {
+        $all = array(
+            $this->createPromiseResolved(1, 0.03),
+            $this->createPromiseResolved(2, 0.02),
+            $this->createPromiseResolved(3, 0.03),
+        );
+
+        $this->setExpectedException(self::TIMEOUT_EXCEPTION_CLASS);
+        $this->block->awaitRace($all, 0.01);
+    }
+
+    public function testAwaitRaceTimeoutCleanedUp()
+    {
+        $promise = $this->createPromiseResolved(1, 0.01);
+        $this->assertEquals(1, $this->block->awaitRace(array($promise), 0.02));
+
+        $loop = $this->loop;
+        $timerInvoked = false;
+        $loop->addTimer(0.02, function () use (&$timerInvoked, $loop) {
+            $timerInvoked = true;
+            $loop->stop();
+        });
+
+        $loop->run();
+        $this->assertTrue($timerInvoked);
+    }
+
     public function testAwaitAllEmpty()
     {
         $this->assertEquals(array(), $this->block->awaitAll(array()));
@@ -148,6 +213,34 @@ class BlockerTest extends TestCase
         $this->createTimerInterrupt(0.01);
 
         $this->assertEquals(array(2), $this->block->awaitAll(array($promise)));
+    }
+
+    public function testAwaitAllOneTimedOut()
+    {
+        $all = array(
+            $this->createPromiseResolved(1, 0.01),
+            $this->createPromiseResolved(2, 0.03),
+            $this->createPromiseResolved(3, 0.01),
+        );
+
+        $this->setExpectedException(self::TIMEOUT_EXCEPTION_CLASS);
+        $this->block->awaitAll($all, 0.02);
+    }
+
+    public function testAwaitAllTimeoutCleanedUp()
+    {
+        $promise = $this->createPromiseResolved(1, 0.01);
+        $this->assertEquals(array(1), $this->block->awaitAll(array($promise), 0.02));
+
+        $loop = $this->loop;
+        $timerInvoked = false;
+        $loop->addTimer(0.02, function () use (&$timerInvoked, $loop) {
+            $timerInvoked = true;
+            $loop->stop();
+        });
+
+        $loop->run();
+        $this->assertTrue($timerInvoked);
     }
 
     private function createPromiseResolved($value = null, $delay = 0.01)

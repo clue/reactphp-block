@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Add optional `$timeout` parameter to `await*()` methods.
+
 ## 0.1.1 (2015-04-05)
 
 * `run()` the loop instead of making it `tick()`.
