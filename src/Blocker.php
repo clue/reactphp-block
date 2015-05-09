@@ -97,71 +97,67 @@ class Blocker
      */
     public function awaitRace(array $promises, $timeout = null)
     {
+        if (!count($promises)) {
+            throw new UnderflowException('No promise could resolve');
+        }
+
         $wait = count($promises);
-        $value = null;
-        $exception = null;
-        $success = false;
+        $resolution = null;
         $loop = $this->loop;
 
-        foreach ($promises as $key => $promise) {
+        $onComplete = function ($valueOrError) use (&$resolution, &$wait, $promises, $loop) {
+            if (!$wait) {
+                // only store first promise value
+                return;
+            }
+
+            $resolution = $valueOrError;
+            $wait = 0;
+
+            // cancel all remaining promises
+            foreach ($promises as $promise) {
+                if ($promise instanceof CancellablePromiseInterface) {
+                    $promise->cancel();
+                }
+            }
+
+            $loop->stop();
+        };
+
+        if ($timeout) {
+            $timer = $loop->addTimer($timeout, function () use ($onComplete) {
+                $onComplete(new TimeoutException('No promise could resolve in the allowed time'));
+            });
+
+            $onComplete = function ($valueOrError) use ($timer, $onComplete) {
+                $timer->cancel();
+                $onComplete($valueOrError);
+            };
+        }
+
+        foreach ($promises as $promise) {
             /* @var $promise PromiseInterface */
             $promise->then(
-                function ($return) use (&$value, &$wait, &$success, $promises, $loop) {
-                    if (!$wait) {
-                        // only store first promise value
-                        return;
-                    }
-                    $value = $return;
-                    $wait = 0;
-                    $success = true;
-
-                    // cancel all remaining promises
-                    foreach ($promises as $promise) {
-                        if ($promise instanceof CancellablePromiseInterface) {
-                            $promise->cancel();
-                        }
-                    }
-
-                    $loop->stop();
-                },
-                function ($e) use (&$wait, $loop) {
-                    if ($wait) {
-                        // count number of promises to await
-                        // cancelling promises will reject all remaining ones, ignore this
+                $onComplete,
+                function ($e) use (&$wait, $onComplete) {
+                    if ($wait == 1) {
+                        $onComplete(new UnderflowException('No promise could resolve'));
+                    } elseif ($wait) {
                         --$wait;
-
-                        if (!$wait) {
-                            $loop->stop();
-                        }
                     }
                 }
             );
-        }
-
-        if ($timeout) {
-            $loop->addTimer($timeout, function () use (&$exception, &$wait, $loop) {
-                if (!$wait) {
-                    return;
-                }
-                $exception = new TimeoutException('No promise could resolve in the allowed time');
-                $wait = 0;
-                $loop->stop();
-            });
         }
 
         while ($wait) {
             $loop->run();
         }
 
-        if ($exception !== null) {
-            throw $exception;
+        if ($resolution instanceof Exception) {
+            throw $resolution;
         }
 
-        if (!$success) {
-            throw new UnderflowException('No promise could resolve');
-        }
-
-        return $value;
+        return $resolution;
     }
 
     /**
