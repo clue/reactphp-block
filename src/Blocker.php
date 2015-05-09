@@ -58,14 +58,7 @@ class Blocker
         };
 
         if ($timeout) {
-            $timer = $loop->addTimer($timeout, function () use ($onComplete) {
-                $onComplete(new TimeoutException('The promise could not resolve in the allowed time'));
-            });
-
-            $onComplete = function ($valueOrError) use ($timer, $onComplete) {
-                $timer->cancel();
-                $onComplete($valueOrError);
-            };
+            $onComplete = $this->applyTimeout($loop, $timeout, $onComplete);
         }
 
         $promise->then($onComplete, $onComplete);
@@ -125,14 +118,7 @@ class Blocker
         };
 
         if ($timeout) {
-            $timer = $loop->addTimer($timeout, function () use ($onComplete) {
-                $onComplete(new TimeoutException('No promise could resolve in the allowed time'));
-            });
-
-            $onComplete = function ($valueOrError) use ($timer, $onComplete) {
-                $timer->cancel();
-                $onComplete($valueOrError);
-            };
+            $onComplete = $this->applyTimeout($loop, $timeout, $onComplete);
         }
 
         foreach ($promises as $promise) {
@@ -235,5 +221,17 @@ class Blocker
         }
 
         return $values;
+    }
+
+    private function applyTimeout(LoopInterface $loop, $timeout, $onComplete)
+    {
+        $timer = $loop->addTimer($timeout, function () use ($onComplete) {
+            $onComplete(new TimeoutException('Could not resolve in the allowed time'));
+        });
+
+        return function ($valueOrError) use ($timer, $onComplete) {
+            $timer->cancel();
+            $onComplete($valueOrError);
+        };
     }
 }
