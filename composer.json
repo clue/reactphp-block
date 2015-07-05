@@ -11,7 +11,7 @@
         }
     ],
     "autoload": {
-        "files": [ "src/Blocker.php" ]
+        "files": [ "src/functions.php" ]
     },
     "require": {
     	"php": ">=5.3",
