@@ -28,14 +28,14 @@ class BlockerTest extends TestCase
         $promise = $this->createPromiseRejected(new Exception('test'));
 
         $this->setExpectedException('Exception', 'test');
-        $this->block->awaitOne($promise);
+        $this->block->await($promise);
     }
 
     public function testAwaitOneResolved()
     {
         $promise = $this->createPromiseResolved(2);
 
-        $this->assertEquals(2, $this->block->awaitOne($promise));
+        $this->assertEquals(2, $this->block->await($promise));
     }
 
     public function testAwaitOneInterrupted()
@@ -43,7 +43,7 @@ class BlockerTest extends TestCase
         $promise = $this->createPromiseResolved(2, 0.02);
         $this->createTimerInterrupt(0.01);
 
-        $this->assertEquals(2, $this->block->awaitOne($promise));
+        $this->assertEquals(2, $this->block->await($promise));
     }
 
     /**

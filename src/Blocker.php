@@ -43,7 +43,7 @@ class Blocker
      * @return mixed returns whatever the promise resolves to
      * @throws Exception when the promise is rejected
      */
-    public function awaitOne(PromiseInterface $promise)
+    public function await(PromiseInterface $promise)
     {
         $wait = true;
         $resolved = null;
