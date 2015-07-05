@@ -46,7 +46,7 @@ function blockingExample()
     $request2 = $browser->get('http://www.google.co.uk/');
     
     // keep the loop running (i.e. block) until the first response arrives
-    $fasterResponse = $blocker->awaitRace(array($request1, $request2));
+    $fasterResponse = $blocker->awaitAny(array($request1, $request2));
     
     return $fasterResponse->getBody();
 }
@@ -73,9 +73,9 @@ The `sleep($seconds)` method can be used to wait/sleep for $time seconds.
 
 The `awaitOne(PromiseInterface $promise)` method can be used to block waiting for the given $promise to resolve.
 
-#### awaitRace()
+#### awaitAny()
 
-The `awaitRace(array $promises)` method can be used to wait for ANY of the given promises to resolve.
+The `awaitAny(array $promises)` method can be used to wait for ANY of the given promises to resolve.
 
 #### awaitAll()
 

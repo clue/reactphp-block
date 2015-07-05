@@ -49,12 +49,12 @@ class BlockerTest extends TestCase
     /**
      * @expectedException UnderflowException
      */
-    public function testAwaitRaceEmpty()
+    public function testAwaitAnyEmpty()
     {
-        $this->block->awaitRace(array());
+        $this->block->awaitAny(array());
     }
 
-    public function testAwaitRaceFirstResolved()
+    public function testAwaitAnyFirstResolved()
     {
         $all = array(
             $this->createPromiseRejected(1),
@@ -62,10 +62,10 @@ class BlockerTest extends TestCase
             $this->createPromiseResolved(3, 0.02)
         );
 
-        $this->assertEquals(2, $this->block->awaitRace($all));
+        $this->assertEquals(2, $this->block->awaitAny($all));
     }
 
-    public function testAwaitRaceFirstResolvedConcurrently()
+    public function testAwaitAnyFirstResolvedConcurrently()
     {
         $d1 = new Deferred();
         $d2 = new Deferred();
@@ -83,10 +83,10 @@ class BlockerTest extends TestCase
             $d3->promise()
         );
 
-        $this->assertEquals(2, $this->block->awaitRace($all));
+        $this->assertEquals(2, $this->block->awaitAny($all));
     }
 
-    public function testAwaitRaceAllRejected()
+    public function testAwaitAnyAllRejected()
     {
         $all = array(
             $this->createPromiseRejected(1),
@@ -94,15 +94,15 @@ class BlockerTest extends TestCase
         );
 
         $this->setExpectedException('UnderflowException');
-        $this->block->awaitRace($all);
+        $this->block->awaitAny($all);
     }
 
-    public function testAwaitRaceInterrupted()
+    public function testAwaitAnyInterrupted()
     {
         $promise = $this->createPromiseResolved(2, 0.02);
         $this->createTimerInterrupt(0.01);
 
-        $this->assertEquals(2, $this->block->awaitRace(array($promise)));
+        $this->assertEquals(2, $this->block->awaitAny(array($promise)));
     }
 
     public function testAwaitAllEmpty()

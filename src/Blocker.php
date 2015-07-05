@@ -86,7 +86,7 @@ class Blocker
      * @return mixed returns whatever the first promise resolves to
      * @throws Exception if ALL promises are rejected
      */
-    public function awaitRace(array $promises)
+    public function awaitAny(array $promises)
     {
         $wait = count($promises);
         $value = null;
