@@ -1,6 +1,5 @@
 <?php
 
-use Clue\React\Block\Blocker;
 use React\Promise\Deferred;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -10,12 +9,10 @@ error_reporting(-1);
 class TestCase extends PHPUnit_Framework_TestCase
 {
     protected $loop;
-    protected $block;
 
     public function setUp()
     {
         $this->loop = React\EventLoop\Factory::create();
-        $this->block = new Blocker();
     }
 
     protected function createPromiseResolved($value = null, $delay = 0.01)

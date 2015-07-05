@@ -35,7 +35,6 @@ function blockingExample()
 {
     // use a unique event loop instance for all parallel operations
     $loop = React\EventLoop\Factory::create();
-    $blocker = new Blocker();
     
     // this example uses an HTTP client
     // this could be pretty much everything that binds to an event loop
@@ -46,7 +45,7 @@ function blockingExample()
     $request2 = $browser->get('http://www.google.co.uk/');
     
     // keep the loop running (i.e. block) until the first response arrives
-    $fasterResponse = $blocker->awaitAny(array($request1, $request2), $loop);
+    $fasterResponse = Block\awaitAny(array($request1, $request2), $loop);
     
     return $fasterResponse->getBody();
 }
@@ -54,15 +53,31 @@ function blockingExample()
 
 ## Usage
 
-### Blocker
+This lightweight library consists only of a few simple functions.
+All functions reside under the `Clue\React\Block` namespace.
 
-The `Blocker` is responsible for orchestrating the
+The below examples assume you use an import statement similar to this:
+
+```php
+use Clue\React\Block;
+
+Block\await(…);
+```
+
+Alternatively, you can also refer to them with their fully-qualified name:
+
+```php
+\Clue\React\Block\await(…);
+``` 
+
+### EventLoop
+
+Each function is responsible for orchestrating the
 [`EventLoop`](https://github.com/reactphp/event-loop#usage)
 in order to make it run (block) until your conditions are fulfilled.
 
 ```php
 $loop = React\EventLoop\Factory::create();
-$blocker = new Blocker();
 ```
 
 #### sleep()
