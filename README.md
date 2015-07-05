@@ -65,9 +65,9 @@ $loop = React\EventLoop\Factory::create();
 $blocker = new Blocker($loop);
 ```
 
-#### wait()
+#### sleep()
 
-The `wait($seconds)` method can be used to wait/sleep for $time seconds.
+The `sleep($seconds)` method can be used to wait/sleep for $time seconds.
 
 #### awaitOne()
 

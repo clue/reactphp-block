@@ -14,10 +14,10 @@ class BlockerTest extends TestCase
         $this->block = new Blocker($this->loop);
     }
 
-    public function testWait()
+    public function testSleep()
     {
         $time = microtime(true);
-        $this->block->wait(0.2);
+        $this->block->sleep(0.2);
         $time = microtime(true) - $time;
 
         $this->assertEquals(0.2, $time, '', 0.1);

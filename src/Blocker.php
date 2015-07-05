@@ -22,7 +22,7 @@ class Blocker
      *
      * @param float $time
      */
-    public function wait($time)
+    public function sleep($time)
     {
         $wait = true;
         $loop = $this->loop;
