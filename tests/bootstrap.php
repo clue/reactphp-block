@@ -26,7 +26,7 @@ class TestCase extends PHPUnit_Framework_TestCase
             $deferred->resolve($value);
         });
 
-            return $deferred->promise();
+        return $deferred->promise();
     }
 
     protected function createPromiseRejected($value = null, $delay = 0.01)
@@ -37,7 +37,7 @@ class TestCase extends PHPUnit_Framework_TestCase
             $deferred->reject($value);
         });
 
-            return $deferred->promise();
+        return $deferred->promise();
     }
 
     protected function createTimerInterrupt($delay = 0.01)
