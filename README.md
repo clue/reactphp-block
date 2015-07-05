@@ -69,9 +69,9 @@ $blocker = new Blocker($loop);
 
 The `wait($seconds)` method can be used to wait/sleep for $time seconds.
 
-#### awaitOne()
+#### await()
 
-The `awaitOne(PromiseInterface $promise)` method can be used to block waiting for the given $promise to resolve.
+The `await(PromiseInterface $promise)` method can be used to block waiting for the given $promise to resolve.
 
 #### awaitRace()
 
