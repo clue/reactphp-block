@@ -15,7 +15,7 @@ class TestCase extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->loop = React\EventLoop\Factory::create();
-        $this->block = new Blocker($this->loop);
+        $this->block = new Blocker();
     }
 
     protected function createPromiseResolved($value = null, $delay = 0.01)

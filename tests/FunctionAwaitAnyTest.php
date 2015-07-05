@@ -9,7 +9,7 @@ class FunctionAwaitAnyTest extends TestCase
      */
     public function testAwaitAnyEmpty()
     {
-        $this->block->awaitAny(array());
+        $this->block->awaitAny(array(), $this->loop);
     }
 
     public function testAwaitAnyFirstResolved()
@@ -20,7 +20,7 @@ class FunctionAwaitAnyTest extends TestCase
             $this->createPromiseResolved(3, 0.02)
         );
 
-        $this->assertEquals(2, $this->block->awaitAny($all));
+        $this->assertEquals(2, $this->block->awaitAny($all, $this->loop));
     }
 
     public function testAwaitAnyFirstResolvedConcurrently()
@@ -41,7 +41,7 @@ class FunctionAwaitAnyTest extends TestCase
             $d3->promise()
         );
 
-        $this->assertEquals(2, $this->block->awaitAny($all));
+        $this->assertEquals(2, $this->block->awaitAny($all, $this->loop));
     }
 
     public function testAwaitAnyAllRejected()
@@ -52,7 +52,7 @@ class FunctionAwaitAnyTest extends TestCase
         );
 
         $this->setExpectedException('UnderflowException');
-        $this->block->awaitAny($all);
+        $this->block->awaitAny($all, $this->loop);
     }
 
     public function testAwaitAnyInterrupted()
@@ -60,6 +60,6 @@ class FunctionAwaitAnyTest extends TestCase
         $promise = $this->createPromiseResolved(2, 0.02);
         $this->createTimerInterrupt(0.01);
 
-        $this->assertEquals(2, $this->block->awaitAny(array($promise)));
+        $this->assertEquals(2, $this->block->awaitAny(array($promise), $this->loop));
     }
 }

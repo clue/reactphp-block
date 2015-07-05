@@ -7,14 +7,14 @@ class FunctionAwaitTest extends TestCase
         $promise = $this->createPromiseRejected(new Exception('test'));
 
         $this->setExpectedException('Exception', 'test');
-        $this->block->await($promise);
+        $this->block->await($promise, $this->loop);
     }
 
     public function testAwaitOneResolved()
     {
         $promise = $this->createPromiseResolved(2);
 
-        $this->assertEquals(2, $this->block->await($promise));
+        $this->assertEquals(2, $this->block->await($promise, $this->loop));
     }
 
     public function testAwaitOneInterrupted()
@@ -22,6 +22,6 @@ class FunctionAwaitTest extends TestCase
         $promise = $this->createPromiseResolved(2, 0.02);
         $this->createTimerInterrupt(0.01);
 
-        $this->assertEquals(2, $this->block->await($promise));
+        $this->assertEquals(2, $this->block->await($promise, $this->loop));
     }
 }

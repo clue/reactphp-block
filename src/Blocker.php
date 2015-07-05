@@ -10,22 +10,15 @@ use Exception;
 
 class Blocker
 {
-    private $loop;
-
-    public function __construct(LoopInterface $loop)
-    {
-        $this->loop = $loop;
-    }
-
     /**
      * wait/sleep for $time seconds
      *
      * @param float $time
+     * @param LoopInterface $loop
      */
-    public function sleep($time)
+    public function sleep($time, LoopInterface $loop)
     {
         $wait = true;
-        $loop = $this->loop;
         $loop->addTimer($time, function () use ($loop, &$wait) {
             $loop->stop();
             $wait = false;
@@ -40,15 +33,15 @@ class Blocker
      * block waiting for the given $promise to resolve
      *
      * @param PromiseInterface $promise
+     * @param LoopInterface    $loop
      * @return mixed returns whatever the promise resolves to
      * @throws Exception when the promise is rejected
      */
-    public function await(PromiseInterface $promise)
+    public function await(PromiseInterface $promise, LoopInterface $loop)
     {
         $wait = true;
         $resolved = null;
         $exception = null;
-        $loop = $this->loop;
 
         $promise->then(
             function ($c) use (&$resolved, &$wait, $loop) {
@@ -82,16 +75,16 @@ class Blocker
      *
      * If ALL promises fail to resolve, this will fail and throw an Exception.
      *
-     * @param array $promises
+     * @param array         $promises
+     * @param LoopInterface $loop
      * @return mixed returns whatever the first promise resolves to
      * @throws Exception if ALL promises are rejected
      */
-    public function awaitAny(array $promises)
+    public function awaitAny(array $promises, LoopInterface $loop)
     {
         $wait = count($promises);
         $value = null;
         $success = false;
-        $loop = $this->loop;
 
         foreach ($promises as $key => $promise) {
             /* @var $promise PromiseInterface */
@@ -149,16 +142,16 @@ class Blocker
      * If ANY promise fails to resolve, this will try to cancel() all
      * remaining promises and throw an Exception.
      *
-     * @param array $promises
+     * @param array         $promises
+     * @param LoopInterface $loop
      * @return array returns an array with whatever each promise resolves to
      * @throws Exception when ANY promise is rejected
      */
-    public function awaitAll(array $promises)
+    public function awaitAll(array $promises, LoopInterface $loop)
     {
         $wait = count($promises);
         $exception = null;
         $values = array();
-        $loop = $this->loop;
 
         foreach ($promises as $key => $promise) {
             /* @var $promise PromiseInterface */
