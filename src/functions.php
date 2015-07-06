@@ -7,6 +7,7 @@ use React\Promise\PromiseInterface;
 use React\Promise\CancellablePromiseInterface;
 use UnderflowException;
 use Exception;
+use React\Promise;
 
 /**
  * wait/sleep for $time seconds
@@ -80,54 +81,28 @@ function await(PromiseInterface $promise, LoopInterface $loop)
  */
 function awaitAny(array $promises, LoopInterface $loop)
 {
-    $wait = count($promises);
-    $value = null;
-    $success = false;
+    try {
+        // Promise\any() does not cope with an empty input array, so reject this here
+        if (!$promises) {
+            throw new UnderflowException('Empty input array');
+        }
 
-    foreach ($promises as $key => $promise) {
-        /* @var $promise PromiseInterface */
-        $promise->then(
-            function ($return) use (&$value, &$wait, &$success, $promises, $loop) {
-                if (!$wait) {
-                    // only store first promise value
-                    return;
-                }
-                $value = $return;
-                $wait = 0;
-                $success = true;
+        $ret = await(Promise\any($promises)->then(null, function () {
+            // rejects with an array of rejection reasons => reject with Exception instead
+            throw new Exception('All promises rejected');
+        }), $loop);
+    } catch (Exception $e) {
+        // if the above throws, then ALL promises are already rejected
+        // (attention: this does not apply once timeout comes into play)
 
-                // cancel all remaining promises
-                foreach ($promises as $promise) {
-                    if ($promise instanceof CancellablePromiseInterface) {
-                        $promise->cancel();
-                    }
-                }
-
-                $loop->stop();
-            },
-            function ($e) use (&$wait, $loop) {
-                if ($wait) {
-                    // count number of promises to await
-                    // cancelling promises will reject all remaining ones, ignore this
-                    --$wait;
-
-                    if (!$wait) {
-                        $loop->stop();
-                    }
-                }
-            }
-        );
+        throw new UnderflowException('No promise could resolve', 0, $e);
     }
 
-    while ($wait) {
-        $loop->run();
-    }
+    // if we reach this, then ANY of the given promises resolved
+    // => try to cancel all promises (settled ones will be ignored anyway)
+    _cancelAllPromises($promises);
 
-    if (!$success) {
-        throw new UnderflowException('No promise could resolve');
-    }
-
-    return $value;
+    return $ret;
 }
 
 /**
@@ -147,49 +122,28 @@ function awaitAny(array $promises, LoopInterface $loop)
  */
 function awaitAll(array $promises, LoopInterface $loop)
 {
-    $wait = count($promises);
-    $exception = null;
-    $values = array();
+    try {
+        return await(Promise\all($promises), $loop);
+    } catch (Exception $e) {
+        // ANY of the given promises rejected
+        // => try to cancel all promises (rejected ones will be ignored anyway)
+        _cancelAllPromises($promises);
 
-    foreach ($promises as $key => $promise) {
-        /* @var $promise PromiseInterface */
-        $promise->then(
-            function ($value) use (&$values, $key, &$wait, $loop) {
-                $values[$key] = $value;
-                --$wait;
-
-                if (!$wait) {
-                    $loop->stop();
-                }
-            },
-            function ($e) use ($promises, &$exception, &$wait, $loop) {
-                if (!$wait) {
-                    // cancelling promises will reject all remaining ones, only store first error
-                    return;
-                }
-
-                $exception = $e;
-                $wait = 0;
-
-                // cancel all remaining promises
-                foreach ($promises as $promise) {
-                    if ($promise instanceof CancellablePromiseInterface) {
-                        $promise->cancel();
-                    }
-                }
-
-                $loop->stop();
-            }
-        );
+        throw $e;
     }
+}
 
-    while ($wait) {
-        $loop->run();
+/**
+ * internal helper function used to iterate over an array of Promise instances and cancel() each
+ *
+ * @internal
+ * @param array $promises
+ */
+function _cancelAllPromises(array $promises)
+{
+    foreach ($promises as $promise) {
+        if ($promise instanceof CancellablePromiseInterface) {
+            $promise->cancel();
+        }
     }
-
-    if ($exception !== null) {
-        throw $exception;
-    }
-
-    return $values;
 }
