@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0 (2015-07-09)
+
+* BC break: Use functional API approach instead of pseudo-OOP.
+  All existing methods are now exposed as simple functions.
+  ([#13](https://github.com/clue/php-block-react/pull/13))
+  ```php
+// old
+$blocker = new Block\Blocker($loop);
+$result = $blocker->await($promise);
+
+// new
+$result = Block\await($promise, $loop);
+```
+
 ## 0.2.0 (2015-07-05)
 
 * BC break: Rename methods in order to avoid confusion.

@@ -3,8 +3,6 @@
 Lightweight library that eases integrating async components built for
 [React PHP](http://reactphp.org/) in a traditional, blocking environment.
 
-> Note: This project is in beta stage! Feel free to report any issues you encounter.
-
 ## Introduction
 
 [React PHP](http://reactphp.org/) provides you a great set of base components and
@@ -103,7 +101,7 @@ The recommended way to install this library is [through composer](http://getcomp
 ```JSON
 {
     "require": {
-        "clue/block-react": "~0.2.0"
+        "clue/block-react": "~0.3.0"
     }
 }
 ```
