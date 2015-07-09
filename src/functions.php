@@ -8,6 +8,7 @@ use React\Promise\CancellablePromiseInterface;
 use UnderflowException;
 use Exception;
 use React\Promise;
+use React\Promise\Timer;
 
 /**
  * wait/sleep for $time seconds
@@ -17,15 +18,7 @@ use React\Promise;
  */
 function sleep($time, LoopInterface $loop)
 {
-    $wait = true;
-    $loop->addTimer($time, function () use ($loop, &$wait) {
-        $loop->stop();
-        $wait = false;
-    });
-
-    do {
-        $loop->run();
-    } while($wait);
+    await(Timer\resolve($time, $loop), $loop);
 }
 
 /**
