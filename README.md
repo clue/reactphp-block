@@ -82,17 +82,62 @@ $loop = React\EventLoop\Factory::create();
 
 The `sleep($seconds, LoopInterface $loop)` method can be used to wait/sleep for $time seconds.
 
+```php
+Block\sleep(1.5, $loop);
+```
+
+Similar to PHP's [`sleep()`](http://php.net/sleep) function.
+Allows for floating point.
+Loop can perform other (async) tasks.
+
 #### await()
 
 The `await(PromiseInterface $promise, LoopInterface $loop)` method can be used to block waiting for the given $promise to resolve.
+
+```php
+$result = Block\await($promise, $loop);
+```
+
+```php
+try {
+    $value = Block\await($promise, $loop);
+    // promise successfully fulfilled with $value
+    echo 'Result: ' . $value;
+} catch (Exeption $exception) {
+    // promise rejected with $exception
+    echo 'ERROR: ' . $exception->getMessage();
+}
+```
 
 #### awaitAny()
 
 The `awaitAny(array $promises, LoopInterface $loop)` method can be used to wait for ANY of the given promises to resolve.
 
+```php
+$promises = array(
+    $promise1,
+    $promise2
+);
+
+$result = Block\awaitAny($promises, $loop);
+```
+
+Once the first promise is resolved, this will try to cancel() all
+ * remaining promises and return whatever the first promise resolves to.
+ *
+ * If ALL promises fail to resolve, this will fail and throw an Exception.
+
 #### awaitAll()
 
 The `awaitAll(array $promises, LoopInterface $loop)` method can be used to wait for ALL of the given promises to resolve.
+
+
+Once the last promise resolves, this will return an array with whatever
+ * each promise resolves to. Array keys will be left intact, i.e. they can
+ * be used to correlate the return array to the promises passed.
+ *
+ * If ANY promise fails to resolve, this will try to cancel() all
+ * remaining promises and throw an Exception.
 
 ## Install
 
