@@ -172,14 +172,11 @@ remaining promises and throw an `Exception`.
 
 ## Install
 
-The recommended way to install this library is [through composer](http://getcomposer.org). [New to composer?](http://getcomposer.org/doc/00-intro.md)
+The recommended way to install this library is [through composer](http://getcomposer.org).
+[New to composer?](http://getcomposer.org/doc/00-intro.md)
 
-```JSON
-{
-    "require": {
-        "clue/block-react": "~0.3.0"
-    }
-}
+```bash
+$ composer require clue/block-react:~1.0
 ```
 
 ## License

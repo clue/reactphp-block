@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 (2015-11-13)
+
+* First stable release, now following SemVer
+* Improved documentation
+
+> Contains no other changes, so it's actually fully compatible with the v0.3.0 release.
+
 ## 0.3.0 (2015-07-09)
 
 * BC break: Use functional API approach instead of pseudo-OOP.
