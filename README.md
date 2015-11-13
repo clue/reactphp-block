@@ -3,6 +3,18 @@
 Lightweight library that eases integrating async components built for
 [React PHP](http://reactphp.org/) in a traditional, blocking environment.
 
+**Table of contents**
+
+* [Introduction](#introduction)
+* [Quickstart example](#quickstart-example)
+* [Usage](#usage)
+  * [sleep()](#sleep)
+  * [await()](#await)
+  * [awaitAny()](#awaitany)
+  * [awaitAll()](#awaitall)
+* [Install](#install)
+* [License](#license)
+
 ## Introduction
 
 [React PHP](http://reactphp.org/) provides you a great set of base components and
