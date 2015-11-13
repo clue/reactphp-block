@@ -98,9 +98,12 @@ The `sleep($seconds, LoopInterface $loop)` method can be used to wait/sleep for 
 Block\sleep(1.5, $loop);
 ```
 
-Similar to PHP's [`sleep()`](http://php.net/sleep) function.
-Allows for floating point.
-Loop can perform other (async) tasks.
+While this may look similar to PHP's [`sleep()`](http://php.net/sleep) function,
+it's actual way more powerful:
+Instead of making the whole process sleep and handing over control to your operating system,
+this function actually executes the loop in the meantime.
+This is particularly useful if you've attached more async tasks to the same loop instance.
+If there are no other (async) tasks, this will behave similar to `sleep()`.
 
 #### await()
 
