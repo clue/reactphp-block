@@ -98,6 +98,10 @@ The `await(PromiseInterface $promise, LoopInterface $loop)` method can be used t
 $result = Block\await($promise, $loop);
 ```
 
+Once the promise is resolved, this will return whatever the promise resolves to.
+
+If the promises is being rejected, this will fail and throw an `Exception`.
+
 ```php
 try {
     $value = Block\await($promise, $loop);
@@ -119,25 +123,37 @@ $promises = array(
     $promise2
 );
 
-$result = Block\awaitAny($promises, $loop);
+$firstResult = Block\awaitAny($promises, $loop);
+
+echo 'First result: ' . $firstResult;
 ```
 
-Once the first promise is resolved, this will try to cancel() all
- * remaining promises and return whatever the first promise resolves to.
- *
- * If ALL promises fail to resolve, this will fail and throw an Exception.
+Once the first promise is resolved, this will try to `cancel()` all
+remaining promises and return whatever the first promise resolves to.
+
+If ALL promises fail to resolve, this will fail and throw an `Exception`.
 
 #### awaitAll()
 
 The `awaitAll(array $promises, LoopInterface $loop)` method can be used to wait for ALL of the given promises to resolve.
 
+```php
+$promises = array(
+    $promise1,
+    $promise2
+);
+
+$allResults = Block\awaitAll($promises, $loop);
+
+echo 'First promise resolved with: ' . $allResults[0];
+```
 
 Once the last promise resolves, this will return an array with whatever
- * each promise resolves to. Array keys will be left intact, i.e. they can
- * be used to correlate the return array to the promises passed.
- *
- * If ANY promise fails to resolve, this will try to cancel() all
- * remaining promises and throw an Exception.
+each promise resolves to. Array keys will be left intact, i.e. they can
+be used to correlate the return array to the promises passed.
+
+If ANY promise fails to resolve, this will try to `cancel()` all
+remaining promises and throw an `Exception`.
 
 ## Install
 
