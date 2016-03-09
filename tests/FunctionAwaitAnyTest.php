@@ -2,6 +2,7 @@
 
 use Clue\React\Block;
 use React\Promise\Deferred;
+use React\Promise;
 
 class FunctionAwaitAnyTest extends TestCase
 {
@@ -62,5 +63,21 @@ class FunctionAwaitAnyTest extends TestCase
         $this->createTimerInterrupt(0.01);
 
         $this->assertEquals(2, Block\awaitAny(array($promise), $this->loop));
+    }
+
+    public function testAwaitAnyWithResolvedWillCancelPending()
+    {
+        $cancelled = false;
+        $promise = new Promise\Promise(function () { }, function () use (&$cancelled) {
+            $cancelled = true;
+        });
+
+        $all = array(
+            Promise\resolve(2),
+            $promise
+        );
+
+        $this->assertEquals(2, Block\awaitAny($all, $this->loop));
+        $this->assertTrue($cancelled);
     }
 }

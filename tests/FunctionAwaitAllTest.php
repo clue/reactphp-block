@@ -1,6 +1,7 @@
 <?php
 
 use Clue\React\Block;
+use React\Promise;
 
 class FunctionAwaitAllTest extends TestCase
 {
@@ -47,5 +48,26 @@ class FunctionAwaitAllTest extends TestCase
         $this->createTimerInterrupt(0.01);
 
         $this->assertEquals(array(2), Block\awaitAll(array($promise), $this->loop));
+    }
+
+    public function testAwaitAllWithRejectedWillCancelPending()
+    {
+        $cancelled = false;
+        $promise = new Promise\Promise(function () { }, function () use (&$cancelled) {
+            $cancelled = true;
+        });
+
+        $all = array(
+            Promise\reject(new Exception('test')),
+            $promise
+        );
+
+        try {
+            Block\awaitAll($all, $this->loop);
+            $this->fail();
+        } catch (Exception $expected) {
+            $this->assertEquals('test', $expected->getMessage());
+            $this->assertTrue($cancelled);
+        }
     }
 }
