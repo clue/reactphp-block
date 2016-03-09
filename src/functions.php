@@ -9,6 +9,7 @@ use UnderflowException;
 use Exception;
 use React\Promise;
 use React\Promise\Timer;
+use React\Promise\Timer\TimeoutException;
 
 /**
  * wait/sleep for $time seconds
@@ -24,16 +25,32 @@ function sleep($time, LoopInterface $loop)
 /**
  * block waiting for the given $promise to resolve
  *
+ * Once the promise is resolved, this will return whatever the promise resolves to.
+ *
+ * Once the promise is rejected, this will throw whatever the promise rejected with.
+ *
+ * If no $timeout is given and the promise stays pending, then this will
+ * potentially wait/block forever until the promise is settled.
+ *
+ * If a $timeout is given and the promise is still pending once the timeout
+ * triggers, this will cancel() the promise and throw a `TimeoutException`.
+ *
  * @param PromiseInterface $promise
  * @param LoopInterface    $loop
+ * @param null|float       $timeout (optional) maximum timeout in seconds or null=wait forever
  * @return mixed returns whatever the promise resolves to
  * @throws Exception when the promise is rejected
+ * @throws TimeoutException if the $timeout is given and triggers
  */
-function await(PromiseInterface $promise, LoopInterface $loop)
+function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
 {
     $wait = true;
     $resolved = null;
     $exception = null;
+
+    if ($timeout !== null) {
+        $promise = Timer\timeout($promise, $timeout, $loop);
+    }
 
     $promise->then(
         function ($c) use (&$resolved, &$wait, $loop) {
@@ -67,12 +84,20 @@ function await(PromiseInterface $promise, LoopInterface $loop)
  *
  * If ALL promises fail to resolve, this will fail and throw an Exception.
  *
+ * If no $timeout is given and either promise stays pending, then this will
+ * potentially wait/block forever until the last promise is settled.
+ *
+ * If a $timeout is given and either promise is still pending once the timeout
+ * triggers, this will cancel() all pending promises and throw a `TimeoutException`.
+ *
  * @param array         $promises
  * @param LoopInterface $loop
+ * @param null|float    $timeout (optional) maximum timeout in seconds or null=wait forever
  * @return mixed returns whatever the first promise resolves to
  * @throws Exception if ALL promises are rejected
+ * @throws TimeoutException if the $timeout is given and triggers
  */
-function awaitAny(array $promises, LoopInterface $loop)
+function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
 {
     try {
         // Promise\any() does not cope with an empty input array, so reject this here
@@ -83,10 +108,17 @@ function awaitAny(array $promises, LoopInterface $loop)
         $ret = await(Promise\any($promises)->then(null, function () {
             // rejects with an array of rejection reasons => reject with Exception instead
             throw new Exception('All promises rejected');
-        }), $loop);
+        }), $loop, $timeout);
+    } catch (TimeoutException $e) {
+        // the timeout fired
+        // => try to cancel all promises (rejected ones will be ignored anyway)
+        _cancelAllPromises($promises);
+
+        throw $e;
     } catch (Exception $e) {
         // if the above throws, then ALL promises are already rejected
-        // (attention: this does not apply once timeout comes into play)
+        // => try to cancel all promises (rejected ones will be ignored anyway)
+        _cancelAllPromises($promises);
 
         throw new UnderflowException('No promise could resolve', 0, $e);
     }
@@ -108,17 +140,25 @@ function awaitAny(array $promises, LoopInterface $loop)
  * If ANY promise fails to resolve, this will try to cancel() all
  * remaining promises and throw an Exception.
  *
+ * If no $timeout is given and either promise stays pending, then this will
+ * potentially wait/block forever until the last promise is settled.
+ *
+ * If a $timeout is given and either promise is still pending once the timeout
+ * triggers, this will cancel() all pending promises and throw a `TimeoutException`.
+ *
  * @param array         $promises
  * @param LoopInterface $loop
+ * @param null|float    $timeout (optional) maximum timeout in seconds or null=wait forever
  * @return array returns an array with whatever each promise resolves to
  * @throws Exception when ANY promise is rejected
+ * @throws TimeoutException if the $timeout is given and triggers
  */
-function awaitAll(array $promises, LoopInterface $loop)
+function awaitAll(array $promises, LoopInterface $loop, $timeout = null)
 {
     try {
-        return await(Promise\all($promises), $loop);
+        return await(Promise\all($promises), $loop, $timeout);
     } catch (Exception $e) {
-        // ANY of the given promises rejected
+        // ANY of the given promises rejected or the timeout fired
         // => try to cancel all promises (rejected ones will be ignored anyway)
         _cancelAllPromises($promises);
 
