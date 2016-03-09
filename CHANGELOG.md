@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 (2016-03-09)
+
+* Feature: Add optional timeout parameter to all await*() functions
+  (#17 by @clue)
+
+* Feature: Cancellation is now supported across all PHP versions
+  (#16 by @clue)
+
 ## 1.0.0 (2015-11-13)
 
 * First stable release, now following SemVer

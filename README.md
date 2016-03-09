@@ -193,12 +193,14 @@ triggers, this will `cancel()` all pending promises and throw a `TimeoutExceptio
 
 ## Install
 
-The recommended way to install this library is [through composer](http://getcomposer.org).
-[New to composer?](http://getcomposer.org/doc/00-intro.md)
+The recommended way to install this library is [through Composer](http://getcomposer.org).
+[New to Composer?](http://getcomposer.org/doc/00-intro.md)
 
 ```bash
-$ composer require clue/block-react:~1.0
+$ composer require clue/block-react:^1.1
 ```
+
+See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
 
 ## License
 
