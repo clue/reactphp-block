@@ -2,6 +2,7 @@
 
 use Clue\React\Block;
 use React\Promise;
+use React\Promise\Timer\TimeoutException;
 
 class FunctionAwaitAllTest extends TestCase
 {
@@ -67,6 +68,20 @@ class FunctionAwaitAllTest extends TestCase
             $this->fail();
         } catch (Exception $expected) {
             $this->assertEquals('test', $expected->getMessage());
+            $this->assertTrue($cancelled);
+        }
+    }
+
+    public function testAwaitAllPendingWillThrowAndCallCancellerOnTimeout()
+    {
+        $cancelled = false;
+        $promise = new Promise\Promise(function () { }, function () use (&$cancelled) {
+            $cancelled = true;
+        });
+
+        try {
+            Block\awaitAll(array($promise), $this->loop, 0.001);
+        } catch (TimeoutException $expected) {
             $this->assertTrue($cancelled);
         }
     }

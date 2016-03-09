@@ -107,7 +107,8 @@ If there are no other (async) tasks, this will behave similar to `sleep()`.
 
 #### await()
 
-The `await(PromiseInterface $promise, LoopInterface $loop)` method can be used to block waiting for the given $promise to resolve.
+The `await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)`
+function can be used to block waiting for the given $promise to resolve.
 
 ```php
 $result = Block\await($promise, $loop);
@@ -115,7 +116,7 @@ $result = Block\await($promise, $loop);
 
 Once the promise is resolved, this will return whatever the promise resolves to.
 
-If the promises is being rejected, this will fail and throw an `Exception`.
+Once the promise is rejected, this will throw whatever the promise rejected with.
 
 ```php
 try {
@@ -128,9 +129,16 @@ try {
 }
 ```
 
+If no $timeout is given and the promise stays pending, then this will
+potentially wait/block forever until the promise is settled.
+
+If a $timeout is given and the promise is still pending once the timeout
+triggers, this will `cancel()` the promise and throw a `TimeoutException`.
+
 #### awaitAny()
 
-The `awaitAny(array $promises, LoopInterface $loop)` method can be used to wait for ANY of the given promises to resolve.
+The `awaitAny(array $promises, LoopInterface $loop, $timeout = null)`
+function can be used to wait for ANY of the given promises to resolve.
 
 ```php
 $promises = array(
@@ -148,9 +156,16 @@ remaining promises and return whatever the first promise resolves to.
 
 If ALL promises fail to resolve, this will fail and throw an `Exception`.
 
+If no $timeout is given and either promise stays pending, then this will
+potentially wait/block forever until the last promise is settled.
+
+If a $timeout is given and either promise is still pending once the timeout
+triggers, this will `cancel()` all pending promises and throw a `TimeoutException`.
+
 #### awaitAll()
 
-The `awaitAll(array $promises, LoopInterface $loop)` method can be used to wait for ALL of the given promises to resolve.
+The `awaitAll(array $promises, LoopInterface $loop, $timeout = null)`
+function can be used to wait for ALL of the given promises to resolve.
 
 ```php
 $promises = array(
@@ -169,6 +184,12 @@ be used to correlate the return array to the promises passed.
 
 If ANY promise fails to resolve, this will try to `cancel()` all
 remaining promises and throw an `Exception`.
+
+If no $timeout is given and either promise stays pending, then this will
+potentially wait/block forever until the last promise is settled.
+
+If a $timeout is given and either promise is still pending once the timeout
+triggers, this will `cancel()` all pending promises and throw a `TimeoutException`.
 
 ## Install
 
