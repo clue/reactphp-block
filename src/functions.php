@@ -56,17 +56,15 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
         function ($c) use (&$resolved, &$wait, $loop) {
             $resolved = $c;
             $wait = false;
-            $loop->stop();
         },
         function ($error) use (&$exception, &$wait, $loop) {
             $exception = $error;
             $wait = false;
-            $loop->stop();
         }
     );
 
     while ($wait) {
-        $loop->run();
+        $loop->tick();
     }
 
     if ($exception !== null) {
