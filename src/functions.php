@@ -14,6 +14,11 @@ use React\Promise\Timer\TimeoutException;
 /**
  * wait/sleep for $time seconds
  *
+ * The $time value will be used as a timer for the loop so that it keeps running
+ * until the timeout triggers.
+ * This implies that if you pass a really small (or negative) value, it will still
+ * start a timer and will thus trigger at the earliest possible time in the future.
+ *
  * @param float $time
  * @param LoopInterface $loop
  */
@@ -34,6 +39,8 @@ function sleep($time, LoopInterface $loop)
  *
  * If a $timeout is given and the promise is still pending once the timeout
  * triggers, this will cancel() the promise and throw a `TimeoutException`.
+ * This implies that if you pass a really small (or negative) value, it will still
+ * start a timer and will thus trigger at the earliest possible time in the future.
  *
  * @param PromiseInterface $promise
  * @param LoopInterface    $loop
@@ -89,6 +96,8 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  *
  * If a $timeout is given and either promise is still pending once the timeout
  * triggers, this will cancel() all pending promises and throw a `TimeoutException`.
+ * This implies that if you pass a really small (or negative) value, it will still
+ * start a timer and will thus trigger at the earliest possible time in the future.
  *
  * @param array         $promises
  * @param LoopInterface $loop
@@ -145,6 +154,8 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  *
  * If a $timeout is given and either promise is still pending once the timeout
  * triggers, this will cancel() all pending promises and throw a `TimeoutException`.
+ * This implies that if you pass a really small (or negative) value, it will still
+ * start a timer and will thus trigger at the earliest possible time in the future.
  *
  * @param array         $promises
  * @param LoopInterface $loop
