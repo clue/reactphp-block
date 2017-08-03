@@ -14,6 +14,38 @@ class FunctionAwaitTest extends TestCase
         Block\await($promise, $this->loop);
     }
 
+    public function testAwaitOneRejectedWithFalseWillWrapInUnexpectedValueException()
+    {
+        $promise = Promise\reject(false);
+
+        $this->setExpectedException('UnexpectedValueException');
+        Block\await($promise, $this->loop);
+    }
+
+    public function testAwaitOneRejectedWithNullWillWrapInUnexpectedValueException()
+    {
+        $promise = Promise\reject(null);
+
+        $this->setExpectedException('UnexpectedValueException');
+        Block\await($promise, $this->loop);
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testAwaitOneRejectedWithPhp7ErrorWillWrapInUnexpectedValueExceptionWithPrevious()
+    {
+        $promise = Promise\reject(new Error('Test'));
+
+        try {
+            Block\await($promise, $this->loop);
+            $this->fail();
+        } catch (UnexpectedValueException $e) {
+            $this->assertInstanceOf('Throwable', $e->getPrevious());
+            $this->assertEquals('Test', $e->getPrevious()->getMessage());
+        }
+    }
+
     public function testAwaitOneResolved()
     {
         $promise = $this->createPromiseResolved(2);

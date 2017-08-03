@@ -123,6 +123,8 @@ $result = Block\await($promise, $loop);
 Once the promise is resolved, this will return whatever the promise resolves to.
 
 Once the promise is rejected, this will throw whatever the promise rejected with.
+If the promise did not reject with an `Exception`, then this function will
+throw an `UnexpectedValueException` instead.
 
 ```php
 try {
@@ -194,6 +196,8 @@ be used to correlate the return array to the promises passed.
 
 If ANY promise fails to resolve, this will try to `cancel()` all
 remaining promises and throw an `Exception`.
+If the promise did not reject with an `Exception`, then this function will
+throw an `UnexpectedValueException` instead.
 
 If no $timeout is given and either promise stays pending, then this will
 potentially wait/block forever until the last promise is settled.
