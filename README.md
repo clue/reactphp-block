@@ -13,6 +13,7 @@ Lightweight library that eases integrating async components built for
   * [awaitAny()](#awaitany)
   * [awaitAll()](#awaitall)
 * [Install](#install)
+* [Tests](#tests)
 * [License](#license)
 
 ## Introduction
@@ -201,6 +202,21 @@ $ composer require clue/block-react:^1.1
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
+
+## Tests
+
+To run the test suite, you first need to clone this repo and then install all
+dependencies [through Composer](http://getcomposer.org):
+
+```bash
+$ composer install
+```
+
+To run the test suite, go to the project root and run:
+
+```bash
+$ php vendor/bin/phpunit
+```
 
 ## License
 
