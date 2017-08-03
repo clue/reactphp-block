@@ -99,6 +99,11 @@ The `sleep($seconds, LoopInterface $loop)` method can be used to wait/sleep for 
 Block\sleep(1.5, $loop);
 ```
 
+The $time value will be used as a timer for the loop so that it keeps running
+until the timeout triggers.
+This implies that if you pass a really small (or negative) value, it will still
+start a timer and will thus trigger at the earliest possible time in the future.
+
 While this may look similar to PHP's [`sleep()`](http://php.net/sleep) function,
 it's actual way more powerful:
 Instead of making the whole process sleep and handing over control to your operating system,
@@ -135,6 +140,8 @@ potentially wait/block forever until the promise is settled.
 
 If a $timeout is given and the promise is still pending once the timeout
 triggers, this will `cancel()` the promise and throw a `TimeoutException`.
+This implies that if you pass a really small (or negative) value, it will still
+start a timer and will thus trigger at the earliest possible time in the future.
 
 #### awaitAny()
 
@@ -162,6 +169,8 @@ potentially wait/block forever until the last promise is settled.
 
 If a $timeout is given and either promise is still pending once the timeout
 triggers, this will `cancel()` all pending promises and throw a `TimeoutException`.
+This implies that if you pass a really small (or negative) value, it will still
+start a timer and will thus trigger at the earliest possible time in the future.
 
 #### awaitAll()
 
@@ -191,6 +200,8 @@ potentially wait/block forever until the last promise is settled.
 
 If a $timeout is given and either promise is still pending once the timeout
 triggers, this will `cancel()` all pending promises and throw a `TimeoutException`.
+This implies that if you pass a really small (or negative) value, it will still
+start a timer and will thus trigger at the earliest possible time in the future.
 
 ## Install
 
