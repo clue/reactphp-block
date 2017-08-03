@@ -213,7 +213,7 @@ The recommended way to install this library is [through Composer](http://getcomp
 [New to Composer?](http://getcomposer.org/doc/00-intro.md)
 
 ```bash
-$ composer require clue/block-react:^1.1
+$ composer require clue/block-react:^1.2
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.

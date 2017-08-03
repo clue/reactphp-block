@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.2.0 (2017-08-03)
+
+* Feature / Fix: Forward compatibility with future EventLoop v1.0 and v0.5 and
+  cap small timeout values for legacy EventLoop
+  (#26 by @clue)
+
+  ```php
+  // now works across all versions
+  Block\sleep(0.000001, $loop);
+  ```
+
+* Feature / Fix: Throw `UnexpectedValueException` if Promise gets rejected with non-Exception
+  (#27 by @clue)
+
+  ```php
+  // now throws an UnexceptedValueException
+  Block\await(Promise\reject(false), $loop);
+  ```
+
+* First class support for legacy PHP 5.3 through PHP 7.1 and HHVM
+  (#24 and #25 by @clue)
+
+* Improve testsuite by adding PHPUnit to require-dev and
+  Fix HHVM build for now again and ignore future HHVM build errors
+  (#23 and #24 by @clue)
+
 ## 1.1.0 (2016-03-09)
 
 * Feature: Add optional timeout parameter to all await*() functions
