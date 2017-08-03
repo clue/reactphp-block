@@ -28,6 +28,8 @@ function sleep($time, LoopInterface $loop)
  * Once the promise is resolved, this will return whatever the promise resolves to.
  *
  * Once the promise is rejected, this will throw whatever the promise rejected with.
+ * If the promise did not reject with an `Exception`, then this function will
+ * throw an `UnexpectedValueException` instead.
  *
  * If no $timeout is given and the promise stays pending, then this will
  * potentially wait/block forever until the promise is settled.
@@ -47,6 +49,7 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
     $wait = true;
     $resolved = null;
     $exception = null;
+    $rejected = false;
 
     if ($timeout !== null) {
         $promise = Timer\timeout($promise, $timeout, $loop);
@@ -58,8 +61,9 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
             $wait = false;
             $loop->stop();
         },
-        function ($error) use (&$exception, &$wait, $loop) {
+        function ($error) use (&$exception, &$rejected, &$wait, $loop) {
             $exception = $error;
+            $rejected = true;
             $wait = false;
             $loop->stop();
         }
@@ -69,7 +73,15 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
         $loop->run();
     }
 
-    if ($exception !== null) {
+    if ($rejected) {
+        if (!$exception instanceof \Exception) {
+            $exception = new \UnexpectedValueException(
+                'Promise rejected with unexpected value of type ' . (is_object(($exception) ? get_class($exception) : gettype($exception))),
+                0,
+                $exception instanceof \Throwable ? $exception : null
+            );
+        }
+
         throw $exception;
     }
 
@@ -139,6 +151,8 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  *
  * If ANY promise fails to resolve, this will try to cancel() all
  * remaining promises and throw an Exception.
+ * If the promise did not reject with an `Exception`, then this function will
+ * throw an `UnexpectedValueException` instead.
  *
  * If no $timeout is given and either promise stays pending, then this will
  * potentially wait/block forever until the last promise is settled.

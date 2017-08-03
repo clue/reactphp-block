@@ -32,6 +32,17 @@ class FunctionAwaitAllTest extends TestCase
         Block\awaitAll($all, $this->loop);
     }
 
+    public function testAwaitAllRejectedWithFalseWillWrapInUnexpectedValueException()
+    {
+        $all = array(
+            $this->createPromiseResolved(1),
+            Promise\reject(false)
+        );
+
+        $this->setExpectedException('UnexpectedValueException');
+        Block\awaitAll($all, $this->loop);
+    }
+
     public function testAwaitAllOnlyRejected()
     {
         $all = array(
