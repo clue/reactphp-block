@@ -131,7 +131,7 @@ try {
     $value = Block\await($promise, $loop);
     // promise successfully fulfilled with $value
     echo 'Result: ' . $value;
-} catch (Exeption $exception) {
+} catch (Exception $exception) {
     // promise rejected with $exception
     echo 'ERROR: ' . $exception->getMessage();
 }
