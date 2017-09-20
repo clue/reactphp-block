@@ -104,7 +104,7 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  * If ALL promises fail to resolve, this will fail and throw an Exception.
  *
  * If no $timeout is given and either promise stays pending, then this will
- * potentially wait/block forever until the last promise is settled.
+ * potentially wait/block forever until the first promise is settled.
  *
  * If a $timeout is given and either promise is still pending once the timeout
  * triggers, this will cancel() all pending promises and throw a `TimeoutException`.
