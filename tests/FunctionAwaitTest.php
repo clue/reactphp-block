@@ -6,27 +6,34 @@ use React\Promise\Timer\TimeoutException;
 
 class FunctionAwaitTest extends TestCase
 {
+    /**
+     * @expectedException Exception
+     * @expectedExceptionMessage test
+     */
     public function testAwaitOneRejected()
     {
         $promise = $this->createPromiseRejected(new Exception('test'));
 
-        $this->setExpectedException('Exception', 'test');
         Block\await($promise, $this->loop);
     }
 
+    /**
+     * @expectedException UnexpectedValueException
+     */
     public function testAwaitOneRejectedWithFalseWillWrapInUnexpectedValueException()
     {
         $promise = Promise\reject(false);
 
-        $this->setExpectedException('UnexpectedValueException');
         Block\await($promise, $this->loop);
     }
 
+    /**
+     * @expectedException UnexpectedValueException
+     */
     public function testAwaitOneRejectedWithNullWillWrapInUnexpectedValueException()
     {
         $promise = Promise\reject(null);
 
-        $this->setExpectedException('UnexpectedValueException');
         Block\await($promise, $this->loop);
     }
 
@@ -61,11 +68,13 @@ class FunctionAwaitTest extends TestCase
         $this->assertEquals(2, Block\await($promise, $this->loop));
     }
 
+    /**
+     * @expectedException React\Promise\Timer\TimeoutException
+     */
     public function testAwaitOncePendingWillThrowOnTimeout()
     {
         $promise = new Promise\Promise(function () { });
 
-        $this->setExpectedException('React\Promise\Timer\TimeoutException');
         Block\await($promise, $this->loop, 0.001);
     }
 

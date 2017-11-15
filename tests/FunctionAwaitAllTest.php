@@ -21,6 +21,10 @@ class FunctionAwaitAllTest extends TestCase
         $this->assertEquals(array('first' => 1, 'second' => 2), Block\awaitAll($all, $this->loop));
     }
 
+    /**
+     * @expectedException Exception
+     * @expectedExceptionMessage test
+     */
     public function testAwaitAllRejected()
     {
         $all = array(
@@ -28,10 +32,12 @@ class FunctionAwaitAllTest extends TestCase
             $this->createPromiseRejected(new Exception('test'))
         );
 
-        $this->setExpectedException('Exception', 'test');
         Block\awaitAll($all, $this->loop);
     }
 
+    /**
+     * @expectedException UnexpectedValueException
+     */
     public function testAwaitAllRejectedWithFalseWillWrapInUnexpectedValueException()
     {
         $all = array(
@@ -39,10 +45,13 @@ class FunctionAwaitAllTest extends TestCase
             Promise\reject(false)
         );
 
-        $this->setExpectedException('UnexpectedValueException');
         Block\awaitAll($all, $this->loop);
     }
 
+    /**
+     * @expectedException Exception
+     * @expectedExceptionMessage first
+     */
     public function testAwaitAllOnlyRejected()
     {
         $all = array(
@@ -50,7 +59,6 @@ class FunctionAwaitAllTest extends TestCase
             $this->createPromiseRejected(new Exception('second'))
         );
 
-        $this->setExpectedException('Exception', 'first');
         Block\awaitAll($all, $this->loop);
     }
 
