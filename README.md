@@ -1,4 +1,4 @@
-# clue/block-react [![Build Status](https://travis-ci.org/clue/php-block-react.svg?branch=master)](https://travis-ci.org/clue/php-block-react)
+# clue/reactphp-block [![Build Status](https://travis-ci.org/clue/reactphp-block.svg?branch=master)](https://travis-ci.org/clue/reactphp-block)
 
 Lightweight library that eases integrating async components built for
 [React PHP](http://reactphp.org/) in a traditional, blocking environment.
