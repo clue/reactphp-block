@@ -104,4 +104,28 @@ class FunctionAwaitAllTest extends TestCase
             $this->assertTrue($cancelled);
         }
     }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testAwaitAllPendingPromiseWithTimeoutAndCancellerShouldNotCreateAnyGarbageReferences()
+    {
+        if (class_exists('React\Promise\When')) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API');
+        }
+
+        gc_collect_cycles();
+
+        $promise = new \React\Promise\Promise(function () { }, function () {
+            throw new RuntimeException();
+        });
+        try {
+            Block\awaitAll(array($promise), $this->loop, 0.001);
+        } catch (Exception $e) {
+            // no-op
+        }
+        unset($promise, $e);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
 }
