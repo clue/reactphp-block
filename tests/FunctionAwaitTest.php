@@ -103,4 +103,138 @@ class FunctionAwaitTest extends TestCase
 
         $this->assertLessThan(0.1, $time);
     }
+
+    public function testAwaitOneResolvesShouldNotCreateAnyGarbageReferences()
+    {
+        if (class_exists('React\Promise\When') && PHP_VERSION_ID >= 50400) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API with PHP 5.4+');
+        }
+
+        gc_collect_cycles();
+
+        $promise = Promise\resolve(1);
+        Block\await($promise, $this->loop);
+        unset($promise);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    public function testAwaitOneRejectedShouldNotCreateAnyGarbageReferences()
+    {
+        if (class_exists('React\Promise\When') && PHP_VERSION_ID >= 50400) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API with PHP 5.4+');
+        }
+
+        gc_collect_cycles();
+
+        $promise = Promise\reject(new RuntimeException());
+        try {
+            Block\await($promise, $this->loop);
+        } catch (Exception $e) {
+            // no-op
+        }
+        unset($promise, $e);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    public function testAwaitOneRejectedWithTimeoutShouldNotCreateAnyGarbageReferences()
+    {
+        if (class_exists('React\Promise\When') && PHP_VERSION_ID >= 50400) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API with PHP 5.4+');
+        }
+
+        gc_collect_cycles();
+
+        $promise = Promise\reject(new RuntimeException());
+        try {
+            Block\await($promise, $this->loop, 0.001);
+        } catch (Exception $e) {
+            // no-op
+        }
+        unset($promise, $e);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    public function testAwaitNullValueShouldNotCreateAnyGarbageReferences()
+    {
+        if (class_exists('React\Promise\When') && PHP_VERSION_ID >= 50400) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API with PHP 5.4+');
+        }
+
+        gc_collect_cycles();
+
+        $promise = Promise\reject(null);
+        try {
+            Block\await($promise, $this->loop);
+        } catch (Exception $e) {
+            // no-op
+        }
+        unset($promise, $e);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testAwaitPendingPromiseWithTimeoutAndCancellerShouldNotCreateAnyGarbageReferences()
+    {
+        if (class_exists('React\Promise\When')) {
+            $this->markTestSkipped('Not supported on legacy Promise v1 API');
+        }
+
+        gc_collect_cycles();
+
+        $promise = new \React\Promise\Promise(function () { }, function () {
+            throw new RuntimeException();
+        });
+        try {
+            Block\await($promise, $this->loop, 0.001);
+        } catch (Exception $e) {
+            // no-op
+        }
+        unset($promise, $e);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testAwaitPendingPromiseWithTimeoutAndWithoutCancellerShouldNotCreateAnyGarbageReferences()
+    {
+        gc_collect_cycles();
+
+        $promise = new \React\Promise\Promise(function () { });
+        try {
+            Block\await($promise, $this->loop, 0.001);
+        } catch (Exception $e) {
+            // no-op
+        }
+        unset($promise, $e);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
+
+    /**
+     * @requires PHP 7
+     */
+    public function testAwaitPendingPromiseWithTimeoutAndNoOpCancellerShouldNotCreateAnyGarbageReferences()
+    {
+        gc_collect_cycles();
+
+        $promise = new \React\Promise\Promise(function () { }, function () {
+            // no-op
+        });
+        try {
+            Block\await($promise, $this->loop, 0.001);
+        } catch (Exception $e) {
+            // no-op
+        }
+        unset($promise, $e);
+
+        $this->assertEquals(0, gc_collect_cycles());
+    }
 }

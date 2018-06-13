@@ -76,6 +76,10 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
         }
     );
 
+    // Explicitly overwrite argument with null value. This ensure that this
+    // argument does not show up in the stack trace in PHP 7+ only.
+    $promise = null;
+
     while ($wait) {
         $loop->run();
     }
@@ -120,33 +124,38 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  */
 function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
 {
+    // Explicitly overwrite argument with null value. This ensure that this
+    // argument does not show up in the stack trace in PHP 7+ only.
+    $all = $promises;
+    $promises = null;
+
     try {
         // Promise\any() does not cope with an empty input array, so reject this here
-        if (!$promises) {
+        if (!$all) {
             throw new UnderflowException('Empty input array');
         }
 
-        $ret = await(Promise\any($promises)->then(null, function () {
+        $ret = await(Promise\any($all)->then(null, function () {
             // rejects with an array of rejection reasons => reject with Exception instead
             throw new Exception('All promises rejected');
         }), $loop, $timeout);
     } catch (TimeoutException $e) {
         // the timeout fired
         // => try to cancel all promises (rejected ones will be ignored anyway)
-        _cancelAllPromises($promises);
+        _cancelAllPromises($all);
 
         throw $e;
     } catch (Exception $e) {
         // if the above throws, then ALL promises are already rejected
         // => try to cancel all promises (rejected ones will be ignored anyway)
-        _cancelAllPromises($promises);
+        _cancelAllPromises($all);
 
         throw new UnderflowException('No promise could resolve', 0, $e);
     }
 
     // if we reach this, then ANY of the given promises resolved
     // => try to cancel all promises (settled ones will be ignored anyway)
-    _cancelAllPromises($promises);
+    _cancelAllPromises($all);
 
     return $ret;
 }
@@ -180,12 +189,17 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  */
 function awaitAll(array $promises, LoopInterface $loop, $timeout = null)
 {
+    // Explicitly overwrite argument with null value. This ensure that this
+    // argument does not show up in the stack trace in PHP 7+ only.
+    $all = $promises;
+    $promises = null;
+
     try {
-        return await(Promise\all($promises), $loop, $timeout);
+        return await(Promise\all($all), $loop, $timeout);
     } catch (Exception $e) {
         // ANY of the given promises rejected or the timeout fired
         // => try to cancel all promises (rejected ones will be ignored anyway)
-        _cancelAllPromises($promises);
+        _cancelAllPromises($all);
 
         throw $e;
     }
