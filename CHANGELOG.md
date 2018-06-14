@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.3.0 (2018-06-14)
+
+*   Feature: Improve memory consumption by cleaning up garbage references.
+    (#35 by @clue)
+
+*   Fix minor documentation typos.
+    (#28 by @seregazhuk)
+
+*   Improve test suite by locking Travis distro so new defaults will not break the build,
+    support PHPUnit 6 and update Travis config to also test against PHP 7.2.
+    (#30 by @clue, #31 by @carusogabriel and #32 by @andreybolonin)
+
+*   Update project homepage.
+    (#34 by @clue)
+
 ## 1.2.0 (2017-08-03)
 
 * Feature / Fix: Forward compatibility with future EventLoop v1.0 and v0.5 and

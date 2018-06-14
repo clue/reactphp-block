@@ -1,7 +1,7 @@
 {
     "name": "clue/block-react",
-    "description": "Integrate async React PHP components into your blocking environment",
-    "keywords": ["Event Loop", "blocking", "synchronous", "Promise", "ReactPHP", "async"],
+    "description": "Lightweight library that eases integrating async components built for ReactPHP in a traditional, blocking environment.",
+    "keywords": ["blocking", "await", "sleep", "Event Loop", "synchronous", "Promise", "ReactPHP", "async"],
     "homepage": "https://github.com/clue/reactphp-block",
     "license": "MIT",
     "authors": [

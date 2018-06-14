@@ -1,11 +1,25 @@
 # clue/reactphp-block [![Build Status](https://travis-ci.org/clue/reactphp-block.svg?branch=master)](https://travis-ci.org/clue/reactphp-block)
 
 Lightweight library that eases integrating async components built for
-[React PHP](http://reactphp.org/) in a traditional, blocking environment.
+[ReactPHP](https://reactphp.org/) in a traditional, blocking environment.
+
+[ReactPHP](https://reactphp.org/) provides you a great set of base components and
+a huge ecosystem of third party libraries in order to perform async operations.
+The event-driven paradigm and asynchronous processing of any number of streams
+in real time enables you to build a whole new set of application on top of it.
+This is great for building modern, scalable applications from scratch and will
+likely result in you relying on a whole new software architecture.
+
+But let's face it: Your day-to-day business is unlikely to allow you to build
+everything from scratch and ditch your existing production environment.
+This is where this library comes into play:
+
+*Let's block ReactPHP*
+More specifically, this library eases the pain of integrating async components
+into your traditional, synchronous (blocking) application stack.
 
 **Table of contents**
 
-* [Introduction](#introduction)
 * [Quickstart example](#quickstart-example)
 * [Usage](#usage)
   * [sleep()](#sleep)
@@ -16,29 +30,10 @@ Lightweight library that eases integrating async components built for
 * [Tests](#tests)
 * [License](#license)
 
-## Introduction
-
-[React PHP](http://reactphp.org/) provides you a great set of base components and
-a huge ecosystem of third party libraries in order to perform async operations.
-The event-driven paradigm and asynchronous processing of any number of streams
-in real time enables you to build a whole new set of application on top of it.
-This is great for building modern, scalable applications from scratch and will
-likely result in you relying on a whole new software architecture.
-
-But let's face it: Your day-to-day business is unlikely to allow you to build
-everything from scratch and ditch your existing production environment.
-
-This is where this library comes into play:
-
-*Let's block React PHP*
-
-More specifically, this library eases the pain of integrating async components
-into your traditional, synchronous (blocking) application stack.
-
 ### Quickstart example
 
 The following example code demonstrates how this library can be used along with
-an [async HTTP client](https://github.com/clue/php-buzz-react) to process two
+an [async HTTP client](https://github.com/clue/reactphp-buzz) to process two
 non-blocking HTTP requests and block until the first (faster) one resolves.
 
 ```php
@@ -79,7 +74,7 @@ Alternatively, you can also refer to them with their fully-qualified name:
 
 ```php
 \Clue\React\Block\await(…);
-``` 
+```
 
 ### EventLoop
 
@@ -91,7 +86,7 @@ in order to make it run (block) until your conditions are fulfilled.
 $loop = React\EventLoop\Factory::create();
 ```
 
-#### sleep()
+### sleep()
 
 The `sleep($seconds, LoopInterface $loop)` method can be used to wait/sleep for $time seconds.
 
@@ -111,7 +106,7 @@ this function actually executes the loop in the meantime.
 This is particularly useful if you've attached more async tasks to the same loop instance.
 If there are no other (async) tasks, this will behave similar to `sleep()`.
 
-#### await()
+### await()
 
 The `await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)`
 function can be used to block waiting for the given $promise to resolve.
@@ -145,7 +140,7 @@ triggers, this will `cancel()` the promise and throw a `TimeoutException`.
 This implies that if you pass a really small (or negative) value, it will still
 start a timer and will thus trigger at the earliest possible time in the future.
 
-#### awaitAny()
+### awaitAny()
 
 The `awaitAny(array $promises, LoopInterface $loop, $timeout = null)`
 function can be used to wait for ANY of the given promises to resolve.
@@ -174,7 +169,7 @@ triggers, this will `cancel()` all pending promises and throw a `TimeoutExceptio
 This implies that if you pass a really small (or negative) value, it will still
 start a timer and will thus trigger at the earliest possible time in the future.
 
-#### awaitAll()
+### awaitAll()
 
 The `awaitAll(array $promises, LoopInterface $loop, $timeout = null)`
 function can be used to wait for ALL of the given promises to resolve.
@@ -209,19 +204,27 @@ start a timer and will thus trigger at the earliest possible time in the future.
 
 ## Install
 
-The recommended way to install this library is [through Composer](http://getcomposer.org).
-[New to Composer?](http://getcomposer.org/doc/00-intro.md)
+The recommended way to install this library is [through Composer](https://getcomposer.org).
+[New to Composer?](https://getcomposer.org/doc/00-intro.md)
+
+This project follows [SemVer](https://semver.org/).
+This will install the latest supported version:
 
 ```bash
-$ composer require clue/block-react:^1.2
+$ composer require clue/block-react:^1.3
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
 
+This project aims to run on any platform and thus does not require any PHP
+extensions and supports running on legacy PHP 5.3 through current PHP 7+ and
+HHVM.
+It's *highly recommended to use PHP 7+* for this project.
+
 ## Tests
 
 To run the test suite, you first need to clone this repo and then install all
-dependencies [through Composer](http://getcomposer.org):
+dependencies [through Composer](https://getcomposer.org):
 
 ```bash
 $ composer install
@@ -235,4 +238,7 @@ $ php vendor/bin/phpunit
 
 ## License
 
-MIT
+This project is released under the permissive [MIT license](LICENSE).
+
+> Did you know that I offer custom development services and issuing invoices for
+  sponsorships of releases and for contributions? Contact me (@clue) for details.
