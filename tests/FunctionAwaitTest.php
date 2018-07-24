@@ -19,6 +19,7 @@ class FunctionAwaitTest extends TestCase
 
     /**
      * @expectedException UnexpectedValueException
+     * @expectedExceptionMessage Promise rejected with unexpected value of type bool
      */
     public function testAwaitOneRejectedWithFalseWillWrapInUnexpectedValueException()
     {
@@ -29,6 +30,7 @@ class FunctionAwaitTest extends TestCase
 
     /**
      * @expectedException UnexpectedValueException
+     * @expectedExceptionMessage Promise rejected with unexpected value of type NULL
      */
     public function testAwaitOneRejectedWithNullWillWrapInUnexpectedValueException()
     {
@@ -48,6 +50,7 @@ class FunctionAwaitTest extends TestCase
             Block\await($promise, $this->loop);
             $this->fail();
         } catch (UnexpectedValueException $e) {
+            $this->assertEquals('Promise rejected with unexpected value of type Error', $e->getMessage());
             $this->assertInstanceOf('Throwable', $e->getPrevious());
             $this->assertEquals('Test', $e->getPrevious()->getMessage());
         }
