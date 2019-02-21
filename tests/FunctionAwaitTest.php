@@ -53,6 +53,18 @@ class FunctionAwaitTest extends TestCase
         }
     }
 
+    /**
+     * @expectedException UnexpectedValueException
+     * @expectedExceptionMessage type string
+     */
+    public function testAwaitRejectedWithStringGivesUnexpectedValueException()
+    {
+        $promise = Promise\reject('Test');
+
+        Block\await($promise, $this->loop);
+        $this->fail();
+    }
+
     public function testAwaitOneResolved()
     {
         $promise = $this->createPromiseResolved(2);
