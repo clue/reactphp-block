@@ -30,6 +30,20 @@ class FunctionAwaitTest extends TestCase
     /**
      * @expectedException UnexpectedValueException
      */
+    public function testAwaitOneRejectedWithNonFalsyWillWrapInUnexpectedValueException()
+    {
+        $all = array(
+            $this->createPromiseResolved(1),
+            Promise\reject(new Exception('first')),
+            Promise\reject(new Exception('second'))
+        );
+
+        Block\await(Promise\some($all, count($all)), $this->loop);
+    }
+
+    /**
+     * @expectedException UnexpectedValueException
+     */
     public function testAwaitOneRejectedWithNullWillWrapInUnexpectedValueException()
     {
         $promise = Promise\reject(null);
