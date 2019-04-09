@@ -99,7 +99,7 @@ until the timeout triggers.
 This implies that if you pass a really small (or negative) value, it will still
 start a timer and will thus trigger at the earliest possible time in the future.
 
-While this may look similar to PHP's [`sleep()`](http://php.net/sleep) function,
+While this may look similar to PHP's [`sleep()`](https://www.php.net/sleep) function,
 it's actual way more powerful:
 Instead of making the whole process sleep and handing over control to your operating system,
 this function actually executes the loop in the meantime.
@@ -211,7 +211,7 @@ This project follows [SemVer](https://semver.org/).
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/block-react:^1.3
+$ composer require clue/block-react:^1.3.1
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.

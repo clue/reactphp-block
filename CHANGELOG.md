@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.1 (2019-04-09)
+
+*   Fix: Fix getting the type of unexpected rejection reason when not rejecting with an `Exception`.
+    (#42 by @Furgas and @clue)
+
+*   Fix: Check if the function is declared before declaring it.
+    (#39 by @Niko9911)
+
 ## 1.3.0 (2018-06-14)
 
 *   Feature: Improve memory consumption by cleaning up garbage references.
