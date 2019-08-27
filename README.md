@@ -106,6 +106,14 @@ this function actually executes the loop in the meantime.
 This is particularly useful if you've attached more async tasks to the same loop instance.
 If there are no other (async) tasks, this will behave similar to `sleep()`.
 
+> While this `Block\sleep` implementation suggests that during the elapsed time the loop
+> keeps running, which is completely true and makes the truth difference between this and the
+> `\sleep()`, this method is part of a blocking library, so your running code will be blocked
+> until the time has elapsed.  
+>  
+> If you want to create a Promise that will be resolved after some time (non-blocking sleep
+> implementation), then we encourage you to use [`Timer\resolve`](https://github.com/reactphp/promise-timer#resolve)
+
 ### await()
 
 The `await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)`
