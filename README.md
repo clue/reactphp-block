@@ -88,62 +88,66 @@ $loop = React\EventLoop\Factory::create();
 
 ### sleep()
 
-The `sleep($seconds, LoopInterface $loop)` method can be used to wait/sleep for $time seconds.
+The `sleep($seconds, LoopInterface $loop): void` function can be used to
+wait/sleep for `$time` seconds.
 
 ```php
 Block\sleep(1.5, $loop);
 ```
 
-The $time value will be used as a timer for the loop so that it keeps running
-until the timeout triggers.
-This implies that if you pass a really small (or negative) value, it will still
-start a timer and will thus trigger at the earliest possible time in the future.
+This function will only return after the given `$time` has elapsed. In the
+meantime, the event loop will run any other events attached to the same loop
+until the timer fires. If there are no other events attached to this loop,
+it will behave similar to the built-in [`sleep()`](https://www.php.net/manual/en/function.sleep.php).
 
-While this may look similar to PHP's [`sleep()`](https://www.php.net/sleep) function,
-it's actual way more powerful:
-Instead of making the whole process sleep and handing over control to your operating system,
-this function actually executes the loop in the meantime.
-This is particularly useful if you've attached more async tasks to the same loop instance.
-If there are no other (async) tasks, this will behave similar to `sleep()`.
+Internally, the `$time` argument will be used as a timer for the loop so that
+it keeps running until this timer triggers. This implies that if you pass a
+really small (or negative) value, it will still start a timer and will thus
+trigger at the earliest possible time in the future.
 
 ### await()
 
-The `await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)`
-function can be used to block waiting for the given $promise to resolve.
+The `await(PromiseInterface $promise, LoopInterface $loop, ?float $timeout = null): mixed` function can be used to
+Block waiting for the given `$promise` to be fulfilled.
 
 ```php
-$result = Block\await($promise, $loop);
+$result = Block\await($promise, $loop, $timeout);
 ```
 
-Once the promise is resolved, this will return whatever the promise resolves to.
+This function will only return after the given `$promise` has settled, i.e.
+either fulfilled or rejected. In the meantime, the event loop will run any
+events attached to the same loop until the promise settles.
 
-Once the promise is rejected, this will throw whatever the promise rejected with.
-If the promise did not reject with an `Exception`, then this function will
-throw an `UnexpectedValueException` instead.
+Once the promise is fulfilled, this function will return whatever the promise
+resolved to.
+
+Once the promise is rejected, this will throw whatever the promise rejected
+with. If the promise did not reject with an `Exception`, then this function
+will throw an `UnexpectedValueException` instead.
 
 ```php
 try {
-    $value = Block\await($promise, $loop);
+    $result = Block\await($promise, $loop);
     // promise successfully fulfilled with $value
-    echo 'Result: ' . $value;
+    echo 'Result: ' . $result;
 } catch (Exception $exception) {
     // promise rejected with $exception
     echo 'ERROR: ' . $exception->getMessage();
 }
 ```
 
-If no $timeout is given and the promise stays pending, then this will
-potentially wait/block forever until the promise is settled.
+If no `$timeout` argument is given and the promise stays pending, then this
+will potentially wait/block forever until the promise is settled.
 
-If a $timeout is given and the promise is still pending once the timeout
-triggers, this will `cancel()` the promise and throw a `TimeoutException`.
+If a `$timeout` argument is given and the promise is still pending once the
+timeout triggers, this will `cancel()` the promise and throw a `TimeoutException`.
 This implies that if you pass a really small (or negative) value, it will still
 start a timer and will thus trigger at the earliest possible time in the future.
 
 ### awaitAny()
 
-The `awaitAny(array $promises, LoopInterface $loop, $timeout = null)`
-function can be used to wait for ANY of the given promises to resolve.
+The `awaitAny(PromiseInterface[] $promises, LoopInterface $loop, ?float $timeout = null): mixed` function can be used to
+wait for ANY of the given promises to be fulfilled.
 
 ```php
 $promises = array(
@@ -151,28 +155,34 @@ $promises = array(
     $promise2
 );
 
-$firstResult = Block\awaitAny($promises, $loop);
+$firstResult = Block\awaitAny($promises, $loop, $timeout);
 
 echo 'First result: ' . $firstResult;
 ```
 
-Once the first promise is resolved, this will try to `cancel()` all
-remaining promises and return whatever the first promise resolves to.
+This function will only return after ANY of the given `$promises` has been
+fulfilled or will throw when ALL of them have been rejected. In the meantime,
+the event loop will run any events attached to the same loop.
 
-If ALL promises fail to resolve, this will fail and throw an `Exception`.
+Once ANY promise is fulfilled, this function will return whatever this
+promise resolved to and will try to `cancel()` all remaining promises.
 
-If no $timeout is given and either promise stays pending, then this will
-potentially wait/block forever until the first promise is settled.
+Once ALL promises reject, this function will fail and throw an `UnderflowException`.
+Likewise, this will throw if an empty array of `$promises` is passed.
 
-If a $timeout is given and either promise is still pending once the timeout
-triggers, this will `cancel()` all pending promises and throw a `TimeoutException`.
-This implies that if you pass a really small (or negative) value, it will still
-start a timer and will thus trigger at the earliest possible time in the future.
+If no `$timeout` argument is given and ALL promises stay pending, then this
+will potentially wait/block forever until the promise is fulfilled.
+
+If a `$timeout` argument is given and ANY promises are still pending once
+the timeout triggers, this will `cancel()` all pending promises and throw a
+`TimeoutException`. This implies that if you pass a really small (or negative)
+value, it will still start a timer and will thus trigger at the earliest
+possible time in the future.
 
 ### awaitAll()
 
-The `awaitAll(array $promises, LoopInterface $loop, $timeout = null)`
-function can be used to wait for ALL of the given promises to resolve.
+The `awaitAll(PromiseInterface[] $promises, LoopInterface $loop, ?float $timeout = null): mixed[]` function can be used to
+wait for ALL of the given promises to be fulfilled.
 
 ```php
 $promises = array(
@@ -180,27 +190,32 @@ $promises = array(
     $promise2
 );
 
-$allResults = Block\awaitAll($promises, $loop);
+$allResults = Block\awaitAll($promises, $loop, $timeout);
 
 echo 'First promise resolved with: ' . $allResults[0];
 ```
 
-Once the last promise resolves, this will return an array with whatever
+This function will only return after ALL of the given `$promises` have been
+fulfilled or will throw when ANY of them have been rejected. In the meantime,
+the event loop will run any events attached to the same loop.
+
+Once ALL promises are fulfilled, this will return an array with whatever
 each promise resolves to. Array keys will be left intact, i.e. they can
 be used to correlate the return array to the promises passed.
+Likewise, this will return an empty array if an empty array of `$promises` is passed.
 
-If ANY promise fails to resolve, this will try to `cancel()` all
-remaining promises and throw an `Exception`.
-If the promise did not reject with an `Exception`, then this function will
-throw an `UnexpectedValueException` instead.
+Once ANY promise rejects, this will try to `cancel()` all remaining promises
+and throw an `Exception`. If the promise did not reject with an `Exception`,
+then this function will throw an `UnexpectedValueException` instead.
 
-If no $timeout is given and either promise stays pending, then this will
-potentially wait/block forever until the last promise is settled.
+If no `$timeout` argument is given and ANY promises stay pending, then this
+will potentially wait/block forever until the promise is fulfilled.
 
-If a $timeout is given and either promise is still pending once the timeout
-triggers, this will `cancel()` all pending promises and throw a `TimeoutException`.
-This implies that if you pass a really small (or negative) value, it will still
-start a timer and will thus trigger at the earliest possible time in the future.
+If a `$timeout` argument is given and ANY promises are still pending once
+the timeout triggers, this will `cancel()` all pending promises and throw a
+`TimeoutException`. This implies that if you pass a really small (or negative)
+value, it will still start a timer and will thus trigger at the earliest
+possible time in the future.
 
 ## Install
 
