@@ -1,9 +1,11 @@
 <?php
 
-use Clue\React\Block;
+namespace Clue\Tests\React\Block;
+
 use React\Promise\Deferred;
 use React\Promise;
 use React\Promise\Timer\TimeoutException;
+use Clue\React\Block;
 
 class FunctionAwaitAnyTest extends TestCase
 {
@@ -110,11 +112,11 @@ class FunctionAwaitAnyTest extends TestCase
         gc_collect_cycles();
 
         $promise = new \React\Promise\Promise(function () { }, function () {
-            throw new RuntimeException();
+            throw new \RuntimeException();
         });
         try {
             Block\awaitAny(array($promise), $this->loop, 0.001);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);

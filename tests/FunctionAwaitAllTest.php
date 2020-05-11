@@ -1,8 +1,10 @@
 <?php
 
-use Clue\React\Block;
+namespace Clue\Tests\React\Block;
+
 use React\Promise;
 use React\Promise\Timer\TimeoutException;
+use Clue\React\Block;
 
 class FunctionAwaitAllTest extends TestCase
 {
@@ -29,7 +31,7 @@ class FunctionAwaitAllTest extends TestCase
     {
         $all = array(
             $this->createPromiseResolved(1),
-            $this->createPromiseRejected(new Exception('test'))
+            $this->createPromiseRejected(new \Exception('test'))
         );
 
         Block\awaitAll($all, $this->loop);
@@ -55,8 +57,8 @@ class FunctionAwaitAllTest extends TestCase
     public function testAwaitAllOnlyRejected()
     {
         $all = array(
-            $this->createPromiseRejected(new Exception('first')),
-            $this->createPromiseRejected(new Exception('second'))
+            $this->createPromiseRejected(new \Exception('first')),
+            $this->createPromiseRejected(new \Exception('second'))
         );
 
         Block\awaitAll($all, $this->loop);
@@ -78,14 +80,14 @@ class FunctionAwaitAllTest extends TestCase
         });
 
         $all = array(
-            Promise\reject(new Exception('test')),
+            Promise\reject(new \Exception('test')),
             $promise
         );
 
         try {
             Block\awaitAll($all, $this->loop);
             $this->fail();
-        } catch (Exception $expected) {
+        } catch (\Exception $expected) {
             $this->assertEquals('test', $expected->getMessage());
             $this->assertTrue($cancelled);
         }
@@ -118,11 +120,11 @@ class FunctionAwaitAllTest extends TestCase
         gc_collect_cycles(); // clear twice to avoid leftovers in PHP 7.4 with ext-xdebug and code coverage turned on
 
         $promise = new \React\Promise\Promise(function () { }, function () {
-            throw new RuntimeException();
+            throw new \RuntimeException();
         });
         try {
             Block\awaitAll(array($promise), $this->loop, 0.001);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);

@@ -1,8 +1,10 @@
 <?php
 
-use Clue\React\Block;
+namespace Clue\Tests\React\Block;
+
 use React\Promise;
 use React\Promise\Timer\TimeoutException;
+use Clue\React\Block;
 
 class FunctionAwaitTest extends TestCase
 {
@@ -12,7 +14,7 @@ class FunctionAwaitTest extends TestCase
      */
     public function testAwaitOneRejected()
     {
-        $promise = $this->createPromiseRejected(new Exception('test'));
+        $promise = $this->createPromiseRejected(new \Exception('test'));
 
         Block\await($promise, $this->loop);
     }
@@ -44,12 +46,12 @@ class FunctionAwaitTest extends TestCase
      */
     public function testAwaitOneRejectedWithPhp7ErrorWillWrapInUnexpectedValueExceptionWithPrevious()
     {
-        $promise = Promise\reject(new Error('Test'));
+        $promise = Promise\reject(new \Error('Test'));
 
         try {
             Block\await($promise, $this->loop);
             $this->fail();
-        } catch (UnexpectedValueException $e) {
+        } catch (\UnexpectedValueException $e) {
             $this->assertEquals('Promise rejected with unexpected value of type Error', $e->getMessage());
             $this->assertInstanceOf('Throwable', $e->getPrevious());
             $this->assertEquals('Test', $e->getPrevious()->getMessage());
@@ -130,10 +132,10 @@ class FunctionAwaitTest extends TestCase
 
         gc_collect_cycles();
 
-        $promise = Promise\reject(new RuntimeException());
+        $promise = Promise\reject(new \RuntimeException());
         try {
             Block\await($promise, $this->loop);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);
@@ -149,10 +151,10 @@ class FunctionAwaitTest extends TestCase
 
         gc_collect_cycles();
 
-        $promise = Promise\reject(new RuntimeException());
+        $promise = Promise\reject(new \RuntimeException());
         try {
             Block\await($promise, $this->loop, 0.001);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);
@@ -171,7 +173,7 @@ class FunctionAwaitTest extends TestCase
         $promise = Promise\reject(null);
         try {
             Block\await($promise, $this->loop);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);
@@ -191,11 +193,11 @@ class FunctionAwaitTest extends TestCase
         gc_collect_cycles();
 
         $promise = new \React\Promise\Promise(function () { }, function () {
-            throw new RuntimeException();
+            throw new \RuntimeException();
         });
         try {
             Block\await($promise, $this->loop, 0.001);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);
@@ -213,7 +215,7 @@ class FunctionAwaitTest extends TestCase
         $promise = new \React\Promise\Promise(function () { });
         try {
             Block\await($promise, $this->loop, 0.001);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);
@@ -233,7 +235,7 @@ class FunctionAwaitTest extends TestCase
         });
         try {
             Block\await($promise, $this->loop, 0.001);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // no-op
         }
         unset($promise, $e);
