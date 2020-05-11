@@ -1,11 +1,9 @@
 <?php
 
+namespace Clue\Tests\React\Block;
+
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use React\Promise\Deferred;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-
-error_reporting(-1);
 
 class TestCase extends BaseTestCase
 {
@@ -13,7 +11,7 @@ class TestCase extends BaseTestCase
 
     public function setUp()
     {
-        $this->loop = React\EventLoop\Factory::create();
+        $this->loop = \React\EventLoop\Factory::create();
     }
 
     protected function createPromiseResolved($value = null, $delay = 0.01)

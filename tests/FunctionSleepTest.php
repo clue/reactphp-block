@@ -1,5 +1,7 @@
 <?php
 
+namespace Clue\Tests\React\Block;
+
 use Clue\React\Block;
 
 class FunctionSleepTest extends TestCase
