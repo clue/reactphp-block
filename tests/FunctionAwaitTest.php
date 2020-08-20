@@ -8,36 +8,27 @@ use Clue\React\Block;
 
 class FunctionAwaitTest extends TestCase
 {
-    /**
-     * @expectedException Exception
-     * @expectedExceptionMessage test
-     */
     public function testAwaitOneRejected()
     {
         $promise = $this->createPromiseRejected(new \Exception('test'));
 
+        $this->setExpectedException('Exception', 'test');
         Block\await($promise, $this->loop);
     }
 
-    /**
-     * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Promise rejected with unexpected value of type bool
-     */
     public function testAwaitOneRejectedWithFalseWillWrapInUnexpectedValueException()
     {
         $promise = Promise\reject(false);
 
+        $this->setExpectedException('UnexpectedValueException', 'Promise rejected with unexpected value of type bool');
         Block\await($promise, $this->loop);
     }
 
-    /**
-     * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Promise rejected with unexpected value of type NULL
-     */
     public function testAwaitOneRejectedWithNullWillWrapInUnexpectedValueException()
     {
         $promise = Promise\reject(null);
 
+        $this->setExpectedException('UnexpectedValueException', 'Promise rejected with unexpected value of type NULL');
         Block\await($promise, $this->loop);
     }
 
@@ -73,13 +64,11 @@ class FunctionAwaitTest extends TestCase
         $this->assertEquals(2, Block\await($promise, $this->loop));
     }
 
-    /**
-     * @expectedException React\Promise\Timer\TimeoutException
-     */
     public function testAwaitOncePendingWillThrowOnTimeout()
     {
         $promise = new Promise\Promise(function () { });
 
+        $this->setExpectedException('React\Promise\Timer\TimeoutException');
         Block\await($promise, $this->loop, 0.001);
     }
 

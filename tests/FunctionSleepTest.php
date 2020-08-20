@@ -12,7 +12,7 @@ class FunctionSleepTest extends TestCase
         Block\sleep(0.2, $this->loop);
         $time = microtime(true) - $time;
 
-        $this->assertEquals(0.2, $time, '', 0.1);
+        $this->assertEqualsDelta(0.2, $time, 0.1);
     }
 
     public function testSleepSmallTimerWillBeCappedReasonably()
@@ -21,6 +21,6 @@ class FunctionSleepTest extends TestCase
         Block\sleep(0.0000001, $this->loop);
         $time = microtime(true) - $time;
 
-        $this->assertEquals(0.1, $time, '', 0.1);
+        $this->assertEqualsDelta(0.1, $time, 0.1);
     }
 }

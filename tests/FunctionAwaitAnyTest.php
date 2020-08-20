@@ -9,11 +9,9 @@ use Clue\React\Block;
 
 class FunctionAwaitAnyTest extends TestCase
 {
-    /**
-     * @expectedException UnderflowException
-     */
     public function testAwaitAnyEmpty()
     {
+        $this->setExpectedException('UnderflowException');
         Block\awaitAny(array(), $this->loop);
     }
 
@@ -49,9 +47,6 @@ class FunctionAwaitAnyTest extends TestCase
         $this->assertEquals(2, Block\awaitAny($all, $this->loop));
     }
 
-    /**
-     * @expectedException UnderflowException
-     */
     public function testAwaitAnyAllRejected()
     {
         $all = array(
@@ -59,6 +54,7 @@ class FunctionAwaitAnyTest extends TestCase
             $this->createPromiseRejected(2)
         );
 
+        $this->setExpectedException('UnderflowException');
         Block\awaitAny($all, $this->loop);
     }
 
