@@ -9,7 +9,10 @@ class TestCase extends BaseTestCase
 {
     protected $loop;
 
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpLoop()
     {
         $this->loop = \React\EventLoop\Factory::create();
     }
@@ -42,5 +45,33 @@ class TestCase extends BaseTestCase
         $loop->addTimer($delay, function () use ($loop) {
             $loop->stop();
         });
+    }
+
+    public function setExpectedException($exception, $exceptionMessage = '', $exceptionCode = null)
+    {
+        if (method_exists($this, 'expectException')) {
+            // PHPUnit 5+
+            $this->expectException($exception);
+            if ($exceptionMessage !== '') {
+                $this->expectExceptionMessage($exceptionMessage);
+            }
+            if ($exceptionCode !== null) {
+                $this->expectExceptionCode($exceptionCode);
+            }
+        } else {
+            // legacy PHPUnit 4
+            parent::setExpectedException($exception, $exceptionMessage, $exceptionCode);
+        }
+    }
+
+    public function assertEqualsDelta($expected, $actual, $delta)
+    {
+        if (method_exists($this, 'assertEqualsWithDelta')) {
+            // PHPUnit 7.5+
+            $this->assertEqualsWithDelta($expected, $actual, $delta);
+        } else {
+            // legacy PHPUnit 4 - PHPUnit 7.5
+            $this->assertEquals($expected, $actual, '', $delta);
+        }
     }
 }
