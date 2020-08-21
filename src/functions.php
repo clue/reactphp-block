@@ -58,13 +58,15 @@ function sleep($time, LoopInterface $loop)
  * ```php
  * try {
  *     $result = Block\await($promise, $loop);
- *     // promise successfully fulfilled with $value
+ *     // promise successfully fulfilled with $result
  *     echo 'Result: ' . $result;
  * } catch (Exception $exception) {
  *     // promise rejected with $exception
  *     echo 'ERROR: ' . $exception->getMessage();
  * }
  * ```
+ *
+ * See also the [examples](../examples/).
  *
  * If no `$timeout` argument is given and the promise stays pending, then this
  * will potentially wait/block forever until the promise is settled.
@@ -143,6 +145,8 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  * echo 'First result: ' . $firstResult;
  * ```
  *
+ * See also the [examples](../examples/).
+ *
  * This function will only return after ANY of the given `$promises` has been
  * fulfilled or will throw when ALL of them have been rejected. In the meantime,
  * the event loop will run any events attached to the same loop.
@@ -220,6 +224,8 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  *
  * echo 'First promise resolved with: ' . $allResults[0];
  * ```
+ *
+ * See also the [examples](../examples/).
  *
  * This function will only return after ALL of the given `$promises` have been
  * fulfilled or will throw when ANY of them have been rejected. In the meantime,

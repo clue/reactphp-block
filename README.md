@@ -33,7 +33,7 @@ into your traditional, synchronous (blocking) application stack.
 ### Quickstart example
 
 The following example code demonstrates how this library can be used along with
-an [async HTTP client](https://github.com/clue/reactphp-buzz) to process two
+an [async HTTP client](https://github.com/reactphp/http#client-usage) to process two
 non-blocking HTTP requests and block until the first (faster) one resolves.
 
 ```php
@@ -44,7 +44,7 @@ function blockingExample()
     
     // this example uses an HTTP client
     // this could be pretty much everything that binds to an event loop
-    $browser = new Clue\React\Buzz\Browser($loop);
+    $browser = new React\Http\Browser($loop);
     
     // set up two parallel requests
     $request1 = $browser->get('http://www.google.com/');
@@ -128,13 +128,15 @@ will throw an `UnexpectedValueException` instead.
 ```php
 try {
     $result = Block\await($promise, $loop);
-    // promise successfully fulfilled with $value
+    // promise successfully fulfilled with $result
     echo 'Result: ' . $result;
 } catch (Exception $exception) {
     // promise rejected with $exception
     echo 'ERROR: ' . $exception->getMessage();
 }
 ```
+
+See also the [examples](examples/).
 
 If no `$timeout` argument is given and the promise stays pending, then this
 will potentially wait/block forever until the promise is settled.
@@ -159,6 +161,8 @@ $firstResult = Block\awaitAny($promises, $loop, $timeout);
 
 echo 'First result: ' . $firstResult;
 ```
+
+See also the [examples](examples/).
 
 This function will only return after ANY of the given `$promises` has been
 fulfilled or will throw when ALL of them have been rejected. In the meantime,
@@ -194,6 +198,8 @@ $allResults = Block\awaitAll($promises, $loop, $timeout);
 
 echo 'First promise resolved with: ' . $allResults[0];
 ```
+
+See also the [examples](examples/).
 
 This function will only return after ALL of the given `$promises` have been
 fulfilled or will throw when ANY of them have been rejected. In the meantime,
