@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0 (2020-08-21)
+
+*   Improve API documentation, update README and add examples.
+    (#45 by @clue and #51 by @SimonFrings)
+
+*   Improve test suite and add `.gitattributes` to exclude dev files from exports.
+    Prepare PHP 8 support, update to PHPUnit 9, run tests on PHP 7.4 and simplify test matrix.
+    (#46, #47 and #50 by @SimonFrings)
+
 ## 1.3.1 (2019-04-09)
 
 *   Fix: Fix getting the type of unexpected rejection reason when not rejecting with an `Exception`.

@@ -7,7 +7,7 @@
     "authors": [
         {
             "name": "Christian Lück",
-            "email": "christian@lueck.tv"
+            "email": "christian@clue.engineering"
         }
     ],
     "autoload": {
@@ -17,7 +17,7 @@
         "psr-4": { "Clue\\Tests\\React\\Block\\": "tests/" }
     },
     "require": {
-    	"php": ">=5.3",
+        "php": ">=5.3",
         "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3.5",
         "react/promise": "^2.7 || ^1.2.1",
         "react/promise-timer": "^1.5"

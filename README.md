@@ -20,15 +20,26 @@ into your traditional, synchronous (blocking) application stack.
 
 **Table of contents**
 
+* [Support us](#support-us)
 * [Quickstart example](#quickstart-example)
 * [Usage](#usage)
-  * [sleep()](#sleep)
-  * [await()](#await)
-  * [awaitAny()](#awaitany)
-  * [awaitAll()](#awaitall)
+    * [sleep()](#sleep)
+    * [await()](#await)
+    * [awaitAny()](#awaitany)
+    * [awaitAll()](#awaitall)
 * [Install](#install)
 * [Tests](#tests)
 * [License](#license)
+
+## Support us
+
+We invest a lot of time developing, maintaining and updating our awesome
+open-source projects. You can help us sustain this high-quality of our work by
+[becoming a sponsor on GitHub](https://github.com/sponsors/clue). Sponsors get
+numerous benefits in return, see our [sponsoring page](https://github.com/sponsors/clue)
+for details.
+
+Let's take these projects to the next level together! 🚀
 
 ### Quickstart example
 
@@ -108,7 +119,7 @@ trigger at the earliest possible time in the future.
 ### await()
 
 The `await(PromiseInterface $promise, LoopInterface $loop, ?float $timeout = null): mixed` function can be used to
-Block waiting for the given `$promise` to be fulfilled.
+block waiting for the given `$promise` to be fulfilled.
 
 ```php
 $result = Block\await($promise, $loop, $timeout);
@@ -232,7 +243,7 @@ This project follows [SemVer](https://semver.org/).
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/block-react:^1.3.1
+$ composer require clue/block-react:^1.4
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
