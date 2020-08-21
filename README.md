@@ -136,6 +136,8 @@ try {
 }
 ```
 
+See also the [examples](examples/).
+
 If no `$timeout` argument is given and the promise stays pending, then this
 will potentially wait/block forever until the promise is settled.
 
@@ -159,6 +161,8 @@ $firstResult = Block\awaitAny($promises, $loop, $timeout);
 
 echo 'First result: ' . $firstResult;
 ```
+
+See also the [examples](examples/).
 
 This function will only return after ANY of the given `$promises` has been
 fulfilled or will throw when ALL of them have been rejected. In the meantime,
@@ -194,6 +198,8 @@ $allResults = Block\awaitAll($promises, $loop, $timeout);
 
 echo 'First promise resolved with: ' . $allResults[0];
 ```
+
+See also the [examples](examples/).
 
 This function will only return after ALL of the given `$promises` have been
 fulfilled or will throw when ANY of them have been rejected. In the meantime,

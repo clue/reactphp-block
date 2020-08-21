@@ -23,6 +23,7 @@
         "react/promise-timer": "^1.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3 || ^5.7 || ^4.8.35"
+        "phpunit/phpunit": "^9.3 || ^5.7 || ^4.8.35",
+        "react/http": "^1.0"
     }
 }
