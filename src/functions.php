@@ -58,7 +58,7 @@ function sleep($time, LoopInterface $loop)
  * ```php
  * try {
  *     $result = Block\await($promise, $loop);
- *     // promise successfully fulfilled with $value
+ *     // promise successfully fulfilled with $result
  *     echo 'Result: ' . $result;
  * } catch (Exception $exception) {
  *     // promise rejected with $exception
