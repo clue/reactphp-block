@@ -25,7 +25,7 @@ class TestCase extends BaseTestCase
      */
     protected function skipForPromise3()
     {
-        if (! class_exists('React\Promise\CancellablePromiseInterface')) {
+        if (! interface_exists('React\Promise\CancellablePromiseInterface')) {
             $this->markTestSkipped('Test is not supported/required by the Promise v3 API.');   
         }
     }
