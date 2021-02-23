@@ -283,7 +283,7 @@ function awaitAll(array $promises, LoopInterface $loop, $timeout = null)
 function _cancelAllPromises(array $promises)
 {
     foreach ($promises as $promise) {
-        if ($promise instanceof CancellablePromiseInterface) {
+        if ($promise instanceof CancellablePromiseInterface || (is_callable([$promise, 'cancel']) && $promise instanceof PromiseInterface)) {
             $promise->cancel();
         }
     }

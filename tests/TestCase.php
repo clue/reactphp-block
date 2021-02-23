@@ -17,6 +17,19 @@ class TestCase extends BaseTestCase
         $this->loop = \React\EventLoop\Factory::create();
     }
 
+    /**
+     * Skips a test if the test suite is running with react/promise version
+     * 3.0 or later.
+     *
+     * @return void
+     */
+    protected function skipForPromise3()
+    {
+        if (! class_exists('React\Promise\CancellablePromiseInterface')) {
+            $this->markTestSkipped('Test is not supported/required by the Promise v3 API.');   
+        }
+    }
+
     protected function createPromiseResolved($value = null, $delay = 0.01)
     {
         $deferred = new Deferred();
