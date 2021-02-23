@@ -18,6 +18,10 @@ class FunctionAwaitTest extends TestCase
 
     public function testAwaitOneRejectedWithFalseWillWrapInUnexpectedValueException()
     {
+        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
+            $this->markTestSkipped('Promises must be rejected with a \Throwable instance since Promise v3');
+        }
+
         $promise = Promise\reject(false);
 
         $this->setExpectedException('UnexpectedValueException', 'Promise rejected with unexpected value of type bool');
@@ -26,6 +30,10 @@ class FunctionAwaitTest extends TestCase
 
     public function testAwaitOneRejectedWithNullWillWrapInUnexpectedValueException()
     {
+        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
+            $this->markTestSkipped('Promises must be rejected with a \Throwable instance since Promise v3');
+        }
+
         $promise = Promise\reject(null);
 
         $this->setExpectedException('UnexpectedValueException', 'Promise rejected with unexpected value of type NULL');
@@ -162,6 +170,10 @@ class FunctionAwaitTest extends TestCase
 
     public function testAwaitNullValueShouldNotCreateAnyGarbageReferences()
     {
+        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
+            $this->markTestSkipped('Promises must be rejected with a \Throwable instance since Promise v3');
+        }
+
         if (class_exists('React\Promise\When') && PHP_VERSION_ID >= 50400) {
             $this->markTestSkipped('Not supported on legacy Promise v1 API with PHP 5.4+');
         }

@@ -19,7 +19,7 @@
     "require": {
         "php": ">=5.3",
         "react/event-loop": "^1.2",
-        "react/promise": "^2.7 || ^1.2.1",
+        "react/promise": "^3.0 || ^2.7 || ^1.2.1",
         "react/promise-timer": "^1.5"
     },
     "require-dev": {
