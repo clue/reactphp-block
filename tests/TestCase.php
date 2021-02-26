@@ -20,13 +20,15 @@ class TestCase extends BaseTestCase
     /**
      * Skips a test if the test suite is running with react/promise version
      * 3.0 or later.
+     * 
+     * @param string $reason
      *
      * @return void
      */
-    protected function skipForPromise3()
+    protected function skipForPromise3($reason)
     {
         if (! interface_exists('React\Promise\CancellablePromiseInterface')) {
-            $this->markTestSkipped('Test is not supported/required by the Promise v3 API.');   
+            $this->markTestSkipped('Test is not supported/required by the Promise v3 API: '.$reason);   
         }
     }
 
