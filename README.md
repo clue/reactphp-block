@@ -1,6 +1,7 @@
 # clue/reactphp-block
 
 [![CI status](https://github.com/clue/reactphp-block/workflows/CI/badge.svg)](https://github.com/clue/reactphp-block/actions)
+[![installs on Packagist](https://img.shields.io/packagist/dt/clue/block-react?color=blue&label=installs%20on%20Packagist)](https://packagist.org/packages/clue/block-react)
 
 Lightweight library that eases integrating async components built for
 [ReactPHP](https://reactphp.org/) in a traditional, blocking environment.
