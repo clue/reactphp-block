@@ -1,4 +1,6 @@
-# clue/reactphp-block [![Build Status](https://travis-ci.org/clue/reactphp-block.svg?branch=master)](https://travis-ci.org/clue/reactphp-block)
+# clue/reactphp-block
+
+[![CI status](https://github.com/clue/reactphp-block/workflows/CI/badge.svg)](https://github.com/clue/reactphp-block/actions)
 
 Lightweight library that eases integrating async components built for
 [ReactPHP](https://reactphp.org/) in a traditional, blocking environment.
@@ -249,7 +251,7 @@ $ composer require clue/block-react:^1.4
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
 
 This project aims to run on any platform and thus does not require any PHP
-extensions and supports running on legacy PHP 5.3 through current PHP 7+ and
+extensions and supports running on legacy PHP 5.3 through current PHP 8+ and
 HHVM.
 It's *highly recommended to use PHP 7+* for this project.
 
