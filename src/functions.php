@@ -80,7 +80,7 @@ function sleep($time, LoopInterface $loop)
  * @param LoopInterface    $loop
  * @param null|float       $timeout (optional) maximum timeout in seconds or null=wait forever
  * @return mixed returns whatever the promise resolves to
- * @throws Exception when the promise is rejected
+ * @throws \Throwable when the promise is rejected
  * @throws TimeoutException if the $timeout is given and triggers
  */
 function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
@@ -108,7 +108,7 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
         }
     );
 
-    // Explicitly overwrite argument with null value. This ensure that this
+    // Explicitly overwrite argument with null value. This ensures that this
     // argument does not show up in the stack trace in PHP 7+ only.
     $promise = null;
 
@@ -117,12 +117,22 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
     }
 
     if ($rejected) {
-        if (!$exception instanceof \Exception) {
-            $exception = new \UnexpectedValueException(
-                'Promise rejected with unexpected value of type ' . (is_object($exception) ? get_class($exception) : gettype($exception)),
-                0,
-                $exception instanceof \Throwable ? $exception : null
-            );
+        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+            if (!$exception instanceof \Throwable) {
+                $exception = new \UnexpectedValueException(
+                    'Promise rejected with unexpected value of type ' . (is_object($exception) ? get_class($exception) : gettype($exception)),
+                    0,
+                    null
+                );
+            }
+        } else {
+            if (!$exception instanceof \Exception) {
+                $exception = new \UnexpectedValueException(
+                    'Promise rejected with unexpected value of type ' . (is_object($exception) ? get_class($exception) : gettype($exception)),
+                    0,
+                    null
+                );
+            }
         }
 
         throw $exception;
