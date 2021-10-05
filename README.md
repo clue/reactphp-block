@@ -53,20 +53,17 @@ non-blocking HTTP requests and block until the first (faster) one resolves.
 ```php
 function blockingExample()
 {
-    // use a unique event loop instance for all parallel operations
-    $loop = React\EventLoop\Factory::create();
-    
     // this example uses an HTTP client
     // this could be pretty much everything that binds to an event loop
-    $browser = new React\Http\Browser($loop);
-    
+    $browser = new React\Http\Browser();
+
     // set up two parallel requests
     $request1 = $browser->get('http://www.google.com/');
     $request2 = $browser->get('http://www.google.co.uk/');
-    
+
     // keep the loop running (i.e. block) until the first response arrives
-    $fasterResponse = Clue\React\Block\awaitAny(array($request1, $request2), $loop);
-    
+    $fasterResponse = Clue\React\Block\awaitAny(array($request1, $request2));
+
     return $fasterResponse->getBody();
 }
 ```
@@ -98,19 +95,9 @@ use Clue\React\Block;
 Block\await(…);
 ```
 
-### EventLoop
-
-Each function is responsible for orchestrating the
-[`EventLoop`](https://github.com/reactphp/event-loop#usage)
-in order to make it run (block) until your conditions are fulfilled.
-
-```php
-$loop = React\EventLoop\Factory::create();
-```
-
 ### sleep()
 
-The `sleep($seconds, LoopInterface $loop): void` function can be used to
+The `sleep(float $seconds, ?LoopInterface $loop = null): void` function can be used to
 wait/sleep for `$time` seconds.
 
 ```php
@@ -127,13 +114,19 @@ it keeps running until this timer triggers. This implies that if you pass a
 really small (or negative) value, it will still start a timer and will thus
 trigger at the earliest possible time in the future.
 
+This function takes an optional `LoopInterface|null $loop` parameter that can be used to
+pass the event loop instance to use. You can use a `null` value here in order to
+use the [default loop](https://github.com/reactphp/event-loop#loop). This value
+SHOULD NOT be given unless you're sure you want to explicitly use a given event
+loop instance.
+
 ### await()
 
-The `await(PromiseInterface $promise, LoopInterface $loop, ?float $timeout = null): mixed` function can be used to
+The `await(PromiseInterface $promise, ?LoopInterface $loop = null, ?float $timeout = null): mixed` function can be used to
 block waiting for the given `$promise` to be fulfilled.
 
 ```php
-$result = Clue\React\Block\await($promise, $loop);
+$result = Clue\React\Block\await($promise);
 ```
 
 This function will only return after the given `$promise` has settled, i.e.
@@ -149,7 +142,7 @@ will throw an `UnexpectedValueException` instead.
 
 ```php
 try {
-    $result = Clue\React\Block\await($promise, $loop);
+    $result = Clue\React\Block\await($promise);
     // promise successfully fulfilled with $result
     echo 'Result: ' . $result;
 } catch (Exception $exception) {
@@ -159,6 +152,12 @@ try {
 ```
 
 See also the [examples](examples/).
+
+This function takes an optional `LoopInterface|null $loop` parameter that can be used to
+pass the event loop instance to use. You can use a `null` value here in order to
+use the [default loop](https://github.com/reactphp/event-loop#loop). This value
+SHOULD NOT be given unless you're sure you want to explicitly use a given event
+loop instance.
 
 If no `$timeout` argument is given and the promise stays pending, then this
 will potentially wait/block forever until the promise is settled. To avoid
@@ -173,7 +172,7 @@ start a timer and will thus trigger at the earliest possible time in the future.
 
 ### awaitAny()
 
-The `awaitAny(PromiseInterface[] $promises, LoopInterface $loop, ?float $timeout = null): mixed` function can be used to
+The `awaitAny(PromiseInterface[] $promises, ?LoopInterface $loop = null, ?float $timeout = null): mixed` function can be used to
 wait for ANY of the given promises to be fulfilled.
 
 ```php
@@ -182,7 +181,7 @@ $promises = array(
     $promise2
 );
 
-$firstResult = Clue\React\Block\awaitAny($promises, $loop);
+$firstResult = Clue\React\Block\awaitAny($promises);
 
 echo 'First result: ' . $firstResult;
 ```
@@ -199,6 +198,12 @@ promise resolved to and will try to `cancel()` all remaining promises.
 Once ALL promises reject, this function will fail and throw an `UnderflowException`.
 Likewise, this will throw if an empty array of `$promises` is passed.
 
+This function takes an optional `LoopInterface|null $loop` parameter that can be used to
+pass the event loop instance to use. You can use a `null` value here in order to
+use the [default loop](https://github.com/reactphp/event-loop#loop). This value
+SHOULD NOT be given unless you're sure you want to explicitly use a given event
+loop instance.
+
 If no `$timeout` argument is given and ALL promises stay pending, then this
 will potentially wait/block forever until the promise is fulfilled. To avoid
 this, API authors creating promises are expected to provide means to
@@ -213,7 +218,7 @@ possible time in the future.
 
 ### awaitAll()
 
-The `awaitAll(PromiseInterface[] $promises, LoopInterface $loop, ?float $timeout = null): mixed[]` function can be used to
+The `awaitAll(PromiseInterface[] $promises, ?LoopInterface $loop = null, ?float $timeout = null): mixed[]` function can be used to
 wait for ALL of the given promises to be fulfilled.
 
 ```php
@@ -222,7 +227,7 @@ $promises = array(
     $promise2
 );
 
-$allResults = Clue\React\Block\awaitAll($promises, $loop);
+$allResults = Clue\React\Block\awaitAll($promises);
 
 echo 'First promise resolved with: ' . $allResults[0];
 ```
@@ -241,6 +246,12 @@ Likewise, this will return an empty array if an empty array of `$promises` is pa
 Once ANY promise rejects, this will try to `cancel()` all remaining promises
 and throw an `Exception`. If the promise did not reject with an `Exception`,
 then this function will throw an `UnexpectedValueException` instead.
+
+This function takes an optional `LoopInterface|null $loop` parameter that can be used to
+pass the event loop instance to use. You can use a `null` value here in order to
+use the [default loop](https://github.com/reactphp/event-loop#loop). This value
+SHOULD NOT be given unless you're sure you want to explicitly use a given event
+loop instance.
 
 If no `$timeout` argument is given and ANY promises stay pending, then this
 will potentially wait/block forever until the promise is fulfilled. To avoid

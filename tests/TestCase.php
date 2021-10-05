@@ -3,6 +3,7 @@
 namespace Clue\Tests\React\Block;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use React\EventLoop\Loop;
 use React\Promise\Deferred;
 
 class TestCase extends BaseTestCase
@@ -14,7 +15,7 @@ class TestCase extends BaseTestCase
      */
     public function setUpLoop()
     {
-        $this->loop = \React\EventLoop\Factory::create();
+        $this->loop = Loop::get();
     }
 
     protected function createPromiseResolved($value = null, $delay = 0.01)

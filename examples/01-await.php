@@ -9,18 +9,15 @@ require __DIR__ . '/../vendor/autoload.php';
  */
 function requestHttp($url)
 {
-    // use a unique event loop instance for this operation
-    $loop = React\EventLoop\Factory::create();
-
     // This example uses an HTTP client
-    $browser = new React\Http\Browser($loop);
+    $browser = new React\Http\Browser();
 
     // set up one request
     $promise = $browser->get($url);
 
     try {
         // keep the loop running (i.e. block) until the response arrives
-        $result = Clue\React\Block\await($promise, $loop);
+        $result = Clue\React\Block\await($promise);
 
         // promise successfully fulfilled with $result
         return $result;

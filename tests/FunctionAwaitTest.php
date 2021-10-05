@@ -58,6 +58,13 @@ class FunctionAwaitTest extends TestCase
         $this->assertEquals(2, Block\await($promise, $this->loop));
     }
 
+    public function testAwaitReturnsFulfilledValueWithoutGivingLoop()
+    {
+        $promise = Promise\resolve(42);
+
+        $this->assertEquals(42, Block\await($promise));
+    }
+
     public function testAwaitOneInterrupted()
     {
         $promise = $this->createPromiseResolved(2, 0.02);
