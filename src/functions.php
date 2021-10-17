@@ -15,7 +15,7 @@ use React\Promise\Timer\TimeoutException;
  * Wait/sleep for `$time` seconds.
  *
  * ```php
- * Block\sleep(1.5, $loop);
+ * Clue\React\Block\sleep(1.5, $loop);
  * ```
  *
  * This function will only return after the given `$time` has elapsed. In the
@@ -41,7 +41,7 @@ function sleep($time, LoopInterface $loop)
  * Block waiting for the given `$promise` to be fulfilled.
  *
  * ```php
- * $result = Block\await($promise, $loop, $timeout);
+ * $result = Clue\React\Block\await($promise, $loop, $timeout);
  * ```
  *
  * This function will only return after the given `$promise` has settled, i.e.
@@ -57,7 +57,7 @@ function sleep($time, LoopInterface $loop)
  *
  * ```php
  * try {
- *     $result = Block\await($promise, $loop);
+ *     $result = Clue\React\Block\await($promise, $loop);
  *     // promise successfully fulfilled with $result
  *     echo 'Result: ' . $result;
  * } catch (Exception $exception) {
@@ -144,7 +144,7 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  *     $promise2
  * );
  *
- * $firstResult = Block\awaitAny($promises, $loop, $timeout);
+ * $firstResult = Clue\React\Block\awaitAny($promises, $loop, $timeout);
  *
  * echo 'First result: ' . $firstResult;
  * ```
@@ -224,7 +224,7 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  *     $promise2
  * );
  *
- * $allResults = Block\awaitAll($promises, $loop, $timeout);
+ * $allResults = Clue\React\Block\awaitAll($promises, $loop, $timeout);
  *
  * echo 'First promise resolved with: ' . $allResults[0];
  * ```

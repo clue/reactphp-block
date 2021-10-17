@@ -1,7 +1,5 @@
 <?php
 
-use Clue\React\Block;
-
 require __DIR__ . '/../vendor/autoload.php';
 
 /**
@@ -22,7 +20,7 @@ function requestHttp($url)
 
     try {
         // keep the loop running (i.e. block) until the response arrives
-        $result = Block\await($promise, $loop);
+        $result = Clue\React\Block\await($promise, $loop);
 
         // promise successfully fulfilled with $result
         return $result;

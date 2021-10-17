@@ -65,7 +65,7 @@ function blockingExample()
     $request2 = $browser->get('http://www.google.co.uk/');
     
     // keep the loop running (i.e. block) until the first response arrives
-    $fasterResponse = Block\awaitAny(array($request1, $request2), $loop);
+    $fasterResponse = Clue\React\Block\awaitAny(array($request1, $request2), $loop);
     
     return $fasterResponse->getBody();
 }
@@ -76,18 +76,26 @@ function blockingExample()
 This lightweight library consists only of a few simple functions.
 All functions reside under the `Clue\React\Block` namespace.
 
-The below examples assume you use an import statement similar to this:
+The below examples refer to all functions with their fully-qualified names like this:
+
+```php
+Clue\React\Block\await(…);
+```
+
+As of PHP 5.6+ you can also import each required function into your code like this:
+
+```php
+use function Clue\React\Block\await;
+
+await(…);
+```
+
+Alternatively, you can also use an import statement similar to this:
 
 ```php
 use Clue\React\Block;
 
 Block\await(…);
-```
-
-Alternatively, you can also refer to them with their fully-qualified name:
-
-```php
-\Clue\React\Block\await(…);
 ```
 
 ### EventLoop
@@ -106,7 +114,7 @@ The `sleep($seconds, LoopInterface $loop): void` function can be used to
 wait/sleep for `$time` seconds.
 
 ```php
-Block\sleep(1.5, $loop);
+Clue\React\Block\sleep(1.5, $loop);
 ```
 
 This function will only return after the given `$time` has elapsed. In the
@@ -125,7 +133,7 @@ The `await(PromiseInterface $promise, LoopInterface $loop, ?float $timeout = nul
 block waiting for the given `$promise` to be fulfilled.
 
 ```php
-$result = Block\await($promise, $loop, $timeout);
+$result = Clue\React\Block\await($promise, $loop, $timeout);
 ```
 
 This function will only return after the given `$promise` has settled, i.e.
@@ -141,7 +149,7 @@ will throw an `UnexpectedValueException` instead.
 
 ```php
 try {
-    $result = Block\await($promise, $loop);
+    $result = Clue\React\Block\await($promise, $loop);
     // promise successfully fulfilled with $result
     echo 'Result: ' . $result;
 } catch (Exception $exception) {
@@ -171,7 +179,7 @@ $promises = array(
     $promise2
 );
 
-$firstResult = Block\awaitAny($promises, $loop, $timeout);
+$firstResult = Clue\React\Block\awaitAny($promises, $loop, $timeout);
 
 echo 'First result: ' . $firstResult;
 ```
@@ -208,7 +216,7 @@ $promises = array(
     $promise2
 );
 
-$allResults = Block\awaitAll($promises, $loop, $timeout);
+$allResults = Clue\React\Block\awaitAll($promises, $loop, $timeout);
 
 echo 'First promise resolved with: ' . $allResults[0];
 ```

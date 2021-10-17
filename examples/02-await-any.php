@@ -1,7 +1,5 @@
 <?php
 
-use Clue\React\Block;
-
 require __DIR__ . '/../vendor/autoload.php';
 
 /**
@@ -26,7 +24,7 @@ function requestHttpFastestOfMultiple($url1, $url2)
 
     try {
         // keep the loop running (i.e. block) until the first response arrives
-        $fasterResponse = Block\awaitAny($promises, $loop);
+        $fasterResponse = Clue\React\Block\awaitAny($promises, $loop);
 
         // promise successfully fulfilled with $fasterResponse
         return $fasterResponse;
