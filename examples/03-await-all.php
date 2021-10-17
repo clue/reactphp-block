@@ -1,7 +1,5 @@
 <?php
 
-use Clue\React\Block;
-
 require __DIR__ . '/../vendor/autoload.php';
 
 /**
@@ -26,7 +24,7 @@ function requestHttpMultiple($url1, $url2)
 
     try {
         // keep the loop running (i.e. block) until all responses arrive
-        $allResults = Block\awaitAll($promises, $loop);
+        $allResults = Clue\React\Block\awaitAll($promises, $loop);
 
         // promise successfully fulfilled with $allResults
         return $allResults;
