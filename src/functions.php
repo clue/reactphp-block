@@ -41,7 +41,7 @@ function sleep($time, LoopInterface $loop)
  * Block waiting for the given `$promise` to be fulfilled.
  *
  * ```php
- * $result = Clue\React\Block\await($promise, $loop, $timeout);
+ * $result = Clue\React\Block\await($promise, $loop);
  * ```
  *
  * This function will only return after the given `$promise` has settled, i.e.
@@ -69,16 +69,19 @@ function sleep($time, LoopInterface $loop)
  * See also the [examples](../examples/).
  *
  * If no `$timeout` argument is given and the promise stays pending, then this
- * will potentially wait/block forever until the promise is settled.
+ * will potentially wait/block forever until the promise is settled. To avoid
+ * this, API authors creating promises are expected to provide means to
+ * configure a timeout for the promise instead. For more details, see also the
+ * [`timeout()` function](https://github.com/reactphp/promise-timer#timeout).
  *
- * If a `$timeout` argument is given and the promise is still pending once the
+ * If the deprecated `$timeout` argument is given and the promise is still pending once the
  * timeout triggers, this will `cancel()` the promise and throw a `TimeoutException`.
  * This implies that if you pass a really small (or negative) value, it will still
  * start a timer and will thus trigger at the earliest possible time in the future.
  *
  * @param PromiseInterface $promise
  * @param LoopInterface    $loop
- * @param null|float       $timeout (optional) maximum timeout in seconds or null=wait forever
+ * @param null|float       $timeout [deprecated] (optional) maximum timeout in seconds or null=wait forever
  * @return mixed returns whatever the promise resolves to
  * @throws Exception when the promise is rejected
  * @throws TimeoutException if the $timeout is given and triggers
@@ -144,7 +147,7 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  *     $promise2
  * );
  *
- * $firstResult = Clue\React\Block\awaitAny($promises, $loop, $timeout);
+ * $firstResult = Clue\React\Block\awaitAny($promises, $loop);
  *
  * echo 'First result: ' . $firstResult;
  * ```
@@ -162,9 +165,12 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  * Likewise, this will throw if an empty array of `$promises` is passed.
  *
  * If no `$timeout` argument is given and ALL promises stay pending, then this
- * will potentially wait/block forever until the promise is fulfilled.
+ * will potentially wait/block forever until the promise is fulfilled. To avoid
+ * this, API authors creating promises are expected to provide means to
+ * configure a timeout for the promise instead. For more details, see also the
+ * [`timeout()` function](https://github.com/reactphp/promise-timer#timeout).
  *
- * If a `$timeout` argument is given and ANY promises are still pending once
+ * If the deprecated `$timeout` argument is given and ANY promises are still pending once
  * the timeout triggers, this will `cancel()` all pending promises and throw a
  * `TimeoutException`. This implies that if you pass a really small (or negative)
  * value, it will still start a timer and will thus trigger at the earliest
@@ -172,7 +178,7 @@ function await(PromiseInterface $promise, LoopInterface $loop, $timeout = null)
  *
  * @param array         $promises
  * @param LoopInterface $loop
- * @param null|float    $timeout (optional) maximum timeout in seconds or null=wait forever
+ * @param null|float    $timeout [deprecated] (optional) maximum timeout in seconds or null=wait forever
  * @return mixed returns whatever the first promise resolves to
  * @throws Exception if ALL promises are rejected
  * @throws TimeoutException if the $timeout is given and triggers
@@ -224,7 +230,7 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  *     $promise2
  * );
  *
- * $allResults = Clue\React\Block\awaitAll($promises, $loop, $timeout);
+ * $allResults = Clue\React\Block\awaitAll($promises, $loop);
  *
  * echo 'First promise resolved with: ' . $allResults[0];
  * ```
@@ -244,9 +250,12 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  * then this function will throw an `UnexpectedValueException` instead.
  *
  * If no `$timeout` argument is given and ANY promises stay pending, then this
- * will potentially wait/block forever until the promise is fulfilled.
+ * will potentially wait/block forever until the promise is fulfilled. To avoid
+ * this, API authors creating promises are expected to provide means to
+ * configure a timeout for the promise instead. For more details, see also the
+ * [`timeout()` function](https://github.com/reactphp/promise-timer#timeout).
  *
- * If a `$timeout` argument is given and ANY promises are still pending once
+ * If the deprecated `$timeout` argument is given and ANY promises are still pending once
  * the timeout triggers, this will `cancel()` all pending promises and throw a
  * `TimeoutException`. This implies that if you pass a really small (or negative)
  * value, it will still start a timer and will thus trigger at the earliest
@@ -254,7 +263,7 @@ function awaitAny(array $promises, LoopInterface $loop, $timeout = null)
  *
  * @param array         $promises
  * @param LoopInterface $loop
- * @param null|float    $timeout (optional) maximum timeout in seconds or null=wait forever
+ * @param null|float    $timeout [deprecated] (optional) maximum timeout in seconds or null=wait forever
  * @return array returns an array with whatever each promise resolves to
  * @throws Exception when ANY promise is rejected
  * @throws TimeoutException if the $timeout is given and triggers

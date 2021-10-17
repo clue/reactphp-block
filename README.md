@@ -133,7 +133,7 @@ The `await(PromiseInterface $promise, LoopInterface $loop, ?float $timeout = nul
 block waiting for the given `$promise` to be fulfilled.
 
 ```php
-$result = Clue\React\Block\await($promise, $loop, $timeout);
+$result = Clue\React\Block\await($promise, $loop);
 ```
 
 This function will only return after the given `$promise` has settled, i.e.
@@ -161,9 +161,12 @@ try {
 See also the [examples](examples/).
 
 If no `$timeout` argument is given and the promise stays pending, then this
-will potentially wait/block forever until the promise is settled.
+will potentially wait/block forever until the promise is settled. To avoid
+this, API authors creating promises are expected to provide means to
+configure a timeout for the promise instead. For more details, see also the
+[`timeout()` function](https://github.com/reactphp/promise-timer#timeout).
 
-If a `$timeout` argument is given and the promise is still pending once the
+If the deprecated `$timeout` argument is given and the promise is still pending once the
 timeout triggers, this will `cancel()` the promise and throw a `TimeoutException`.
 This implies that if you pass a really small (or negative) value, it will still
 start a timer and will thus trigger at the earliest possible time in the future.
@@ -179,7 +182,7 @@ $promises = array(
     $promise2
 );
 
-$firstResult = Clue\React\Block\awaitAny($promises, $loop, $timeout);
+$firstResult = Clue\React\Block\awaitAny($promises, $loop);
 
 echo 'First result: ' . $firstResult;
 ```
@@ -197,9 +200,12 @@ Once ALL promises reject, this function will fail and throw an `UnderflowExcepti
 Likewise, this will throw if an empty array of `$promises` is passed.
 
 If no `$timeout` argument is given and ALL promises stay pending, then this
-will potentially wait/block forever until the promise is fulfilled.
+will potentially wait/block forever until the promise is fulfilled. To avoid
+this, API authors creating promises are expected to provide means to
+configure a timeout for the promise instead. For more details, see also the
+[`timeout()` function](https://github.com/reactphp/promise-timer#timeout).
 
-If a `$timeout` argument is given and ANY promises are still pending once
+If the deprecated `$timeout` argument is given and ANY promises are still pending once
 the timeout triggers, this will `cancel()` all pending promises and throw a
 `TimeoutException`. This implies that if you pass a really small (or negative)
 value, it will still start a timer and will thus trigger at the earliest
@@ -216,7 +222,7 @@ $promises = array(
     $promise2
 );
 
-$allResults = Clue\React\Block\awaitAll($promises, $loop, $timeout);
+$allResults = Clue\React\Block\awaitAll($promises, $loop);
 
 echo 'First promise resolved with: ' . $allResults[0];
 ```
@@ -237,9 +243,12 @@ and throw an `Exception`. If the promise did not reject with an `Exception`,
 then this function will throw an `UnexpectedValueException` instead.
 
 If no `$timeout` argument is given and ANY promises stay pending, then this
-will potentially wait/block forever until the promise is fulfilled.
+will potentially wait/block forever until the promise is fulfilled. To avoid
+this, API authors creating promises are expected to provide means to
+configure a timeout for the promise instead. For more details, see also the
+[`timeout()` function](https://github.com/reactphp/promise-timer#timeout).
 
-If a `$timeout` argument is given and ANY promises are still pending once
+If the deprecated `$timeout` argument is given and ANY promises are still pending once
 the timeout triggers, this will `cancel()` all pending promises and throw a
 `TimeoutException`. This implies that if you pass a really small (or negative)
 value, it will still start a timer and will thus trigger at the earliest
