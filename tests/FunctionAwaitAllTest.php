@@ -23,6 +23,13 @@ class FunctionAwaitAllTest extends TestCase
         $this->assertEquals(array('first' => 1, 'second' => 2), Block\awaitAll($all, $this->loop));
     }
 
+    public function testAwaitAllReturnsArrayWithFulfilledValueFromSinglePromiseWithoutGivingLoop()
+    {
+        $promise = Promise\resolve(42);
+
+        $this->assertEquals(array(42), Block\awaitAll(array($promise)));
+    }
+
     public function testAwaitAllRejected()
     {
         $all = array(

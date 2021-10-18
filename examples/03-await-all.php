@@ -10,11 +10,8 @@ require __DIR__ . '/../vendor/autoload.php';
  */
 function requestHttpMultiple($url1, $url2)
 {
-    // use a unique event loop instance for all parallel operations
-    $loop = React\EventLoop\Factory::create();
-
     // This example uses an HTTP client
-    $browser = new React\Http\Browser($loop);
+    $browser = new React\Http\Browser();
 
     // set up two parallel requests
     $promises = array(
@@ -24,7 +21,7 @@ function requestHttpMultiple($url1, $url2)
 
     try {
         // keep the loop running (i.e. block) until all responses arrive
-        $allResults = Clue\React\Block\awaitAll($promises, $loop);
+        $allResults = Clue\React\Block\awaitAll($promises);
 
         // promise successfully fulfilled with $allResults
         return $allResults;

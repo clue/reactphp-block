@@ -26,6 +26,13 @@ class FunctionAwaitAnyTest extends TestCase
         $this->assertEquals(2, Block\awaitAny($all, $this->loop));
     }
 
+    public function testAwaitAnyReturnsFulfilledValueFromSinglePromiseWithoutGivingLoop()
+    {
+        $promise = Promise\resolve(42);
+
+        $this->assertEquals(42, Block\awaitAny(array($promise)));
+    }
+
     public function testAwaitAnyFirstResolvedConcurrently()
     {
         $d1 = new Deferred();
