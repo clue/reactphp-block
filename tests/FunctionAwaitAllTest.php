@@ -43,6 +43,10 @@ class FunctionAwaitAllTest extends TestCase
 
     public function testAwaitAllRejectedWithFalseWillWrapInUnexpectedValueException()
     {
+        if (!interface_exists('React\Promise\CancellablePromiseInterface')) {
+            $this->markTestSkipped('Promises must be rejected with a \Throwable instance since Promise v3');
+        }
+
         $all = array(
             $this->createPromiseResolved(1),
             Promise\reject(false)

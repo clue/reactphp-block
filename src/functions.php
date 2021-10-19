@@ -196,9 +196,9 @@ function await(PromiseInterface $promise, LoopInterface $loop = null, $timeout =
  * value, it will still start a timer and will thus trigger at the earliest
  * possible time in the future.
  *
- * @param array          $promises
- * @param ?LoopInterface $loop
- * @param ?float         $timeout [deprecated] (optional) maximum timeout in seconds or null=wait forever
+ * @param PromiseInterface[]  $promises
+ * @param ?LoopInterface      $loop
+ * @param ?float              $timeout [deprecated] (optional) maximum timeout in seconds or null=wait forever
  * @return mixed returns whatever the first promise resolves to
  * @throws Exception if ALL promises are rejected
  * @throws TimeoutException if the $timeout is given and triggers
@@ -287,9 +287,9 @@ function awaitAny(array $promises, LoopInterface $loop = null, $timeout = null)
  * value, it will still start a timer and will thus trigger at the earliest
  * possible time in the future.
  *
- * @param array          $promises
- * @param ?LoopInterface $loop
- * @param ?float         $timeout [deprecated] (optional) maximum timeout in seconds or null=wait forever
+ * @param PromiseInterface[]  $promises
+ * @param ?LoopInterface      $loop
+ * @param ?float              $timeout [deprecated] (optional) maximum timeout in seconds or null=wait forever
  * @return array returns an array with whatever each promise resolves to
  * @throws Exception when ANY promise is rejected
  * @throws TimeoutException if the $timeout is given and triggers
@@ -322,7 +322,7 @@ function awaitAll(array $promises, LoopInterface $loop = null, $timeout = null)
 function _cancelAllPromises(array $promises)
 {
     foreach ($promises as $promise) {
-        if ($promise instanceof CancellablePromiseInterface) {
+        if ($promise instanceof PromiseInterface && ($promise instanceof CancellablePromiseInterface || !\interface_exists('React\Promise\CancellablePromiseInterface'))) {
             $promise->cancel();
         }
     }
