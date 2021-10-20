@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.5.0 (2021-10-20)
+
+*   Feature: Simplify usage by supporting new [default loop](https://github.com/reactphp/event-loop#loop).
+    (#60 by @clue)
+
+    ```php
+    // old (still supported)
+    Clue\React\Block\await($promise, $loop);
+    Clue\React\Block\awaitAny($promises, $loop);
+    Clue\React\Block\awaitAll($promises, $loop);
+
+    // new (using default loop)
+    Clue\React\Block\await($promise);
+    Clue\React\Block\awaitAny($promises);
+    Clue\React\Block\awaitAll($promises);
+    ```
+
+*   Feature: Added support for upcoming react/promise v3.
+    (#61 by @davidcole1340 and @SimonFrings)
+
+*   Improve error reporting by appending previous message for `Throwable`s.
+    (#57 by @clue)
+
+*   Deprecate `$timeout` argument for `await*()` functions.
+    (#59 by @clue)
+
+    ```php
+    // deprecated
+    Clue\React\Block\await($promise, $loop, $timeout);
+    Clue\React\Block\awaitAny($promises, $loop, $timeout);
+    Clue\React\Block\awaitAll($promises, $loop, $timeout);
+
+    // still supported
+    Clue\React\Block\await($promise, $loop);
+    Clue\React\Block\awaitAny($promises, $loop);
+    Clue\React\Block\awaitAll($promises, $loop);
+    ```
+
+*   Improve API documentation.
+    (#58 and #63 by @clue and #55 by @PaulRotmann)
+
+*   Improve test suite and use GitHub actions for continuous integration (CI). 
+    (#54 by @SimonFrings)
+
 ## 1.4.0 (2020-08-21)
 
 *   Improve API documentation, update README and add examples.
