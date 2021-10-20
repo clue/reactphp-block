@@ -120,6 +120,13 @@ use the [default loop](https://github.com/reactphp/event-loop#loop). This value
 SHOULD NOT be given unless you're sure you want to explicitly use a given event
 loop instance.
 
+Note that this function will assume control over the event loop. Internally, it
+will actually `run()` the loop until the timer fires and then calls `stop()` to
+terminate execution of the loop. This means this function is more suited for
+short-lived program executions when using async APIs is not feasible. For
+long-running applications, using event-driven APIs by leveraging timers
+is usually preferable.
+
 ### await()
 
 The `await(PromiseInterface $promise, ?LoopInterface $loop = null, ?float $timeout = null): mixed` function can be used to
@@ -170,6 +177,13 @@ timeout triggers, this will `cancel()` the promise and throw a `TimeoutException
 This implies that if you pass a really small (or negative) value, it will still
 start a timer and will thus trigger at the earliest possible time in the future.
 
+Note that this function will assume control over the event loop. Internally, it
+will actually `run()` the loop until the promise settles and then calls `stop()` to
+terminate execution of the loop. This means this function is more suited for
+short-lived promise executions when using promise-based APIs is not feasible.
+For long-running applications, using promise-based APIs by leveraging chained
+`then()` calls is usually preferable.
+
 ### awaitAny()
 
 The `awaitAny(PromiseInterface[] $promises, ?LoopInterface $loop = null, ?float $timeout = null): mixed` function can be used to
@@ -215,6 +229,13 @@ the timeout triggers, this will `cancel()` all pending promises and throw a
 `TimeoutException`. This implies that if you pass a really small (or negative)
 value, it will still start a timer and will thus trigger at the earliest
 possible time in the future.
+
+Note that this function will assume control over the event loop. Internally, it
+will actually `run()` the loop until the promise settles and then calls `stop()` to
+terminate execution of the loop. This means this function is more suited for
+short-lived promise executions when using promise-based APIs is not feasible.
+For long-running applications, using promise-based APIs by leveraging chained
+`then()` calls is usually preferable.
 
 ### awaitAll()
 
@@ -264,6 +285,13 @@ the timeout triggers, this will `cancel()` all pending promises and throw a
 `TimeoutException`. This implies that if you pass a really small (or negative)
 value, it will still start a timer and will thus trigger at the earliest
 possible time in the future.
+
+Note that this function will assume control over the event loop. Internally, it
+will actually `run()` the loop until the promise settles and then calls `stop()` to
+terminate execution of the loop. This means this function is more suited for
+short-lived promise executions when using promise-based APIs is not feasible.
+For long-running applications, using promise-based APIs by leveraging chained
+`then()` calls is usually preferable.
 
 ## Install
 
