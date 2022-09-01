@@ -1,4 +1,33 @@
-# clue/reactphp-block
+# Deprecation notice
+
+This package has now been migrated over to
+[reactphp/async](https://github.com/reactphp/async)
+and only exists for BC reasons.
+
+```bash
+composer require "react/async:^4 || ^3 || ^2"
+```
+
+Only the `await()` function has been merged without its optional parameters `$loop` and `$timeout`,
+the rest of `await()` works as-is from the latest `v1.5.0` release with no other significant changes.
+Simply update your code to use the updated namespace like this:
+
+```php
+// old
+$result = Clue\React\Block\await($promise);
+
+// new
+$result = React\Async\await($promise);
+```
+
+See [reactphp/async](https://github.com/reactphp/async#usage) for more details.
+
+The below documentation applies to the last release of this package.
+Further development will take place in the updated
+[reactphp/async](https://github.com/reactphp/async),
+so you're highly recommended to upgrade as soon as possible.
+
+# Legacy clue/reactphp-block
 
 [![CI status](https://github.com/clue/reactphp-block/workflows/CI/badge.svg)](https://github.com/clue/reactphp-block/actions)
 [![installs on Packagist](https://img.shields.io/packagist/dt/clue/block-react?color=blue&label=installs%20on%20Packagist)](https://packagist.org/packages/clue/block-react)
